@@ -79,21 +79,19 @@ if [ -e ./make_drv ]; then
 fi
 
 ################################################################################
-#			copy dkms.conf to the makefile dir
-################################################################################
-cp ../../dkms.conf ./
-
-################################################################################
 #                       install via dkms
 ################################################################################
 
 if [ $(dpkg-query -W -f='${Status}' dkms 2>/dev/null | grep -c "ok installed") -eq 0 ];
 then
 	echo "##################################################"
-	echo -e "\nPackage 'dkms' is not installed.\nPlease install it using 'sudo apt-get install dkms -y'.\nInstallation is aborted!\n"
+	echo -e "\nPackage 'dkms' is not installed."
+	echo -e "Please install it using 'sudo apt-get install dkms -y'"
+	echo -e "INSTALLATION FAILED!\n"
 	echo "##################################################"
 	exit 1
 else
+	cp ../../dkms.conf ./ #copy dkms.conf to the extracted tarball dir
 	sudo cp -R . /usr/src/rtl8812AU_linux-4.3.8
 	sudo dkms add -m rtl8812AU_linux -v 4.3.8
 	sudo dkms build -m rtl8812AU_linux -v 4.3.8
