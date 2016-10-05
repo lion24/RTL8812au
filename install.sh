@@ -43,7 +43,7 @@ cp /tmp/tmp-makefile Makefile
 #
 # 		http://feiraspromove.com.br/posts/2015-12-08-Alfa-awus036ac.html
 ################################################################################
-affectedKernel="4.4"
+AffectedKernels=("4.4")
 IN=`uname -r`
 arrIN=(${IN//./ })
 KernelVersion=""
@@ -61,10 +61,15 @@ do
    fi
 done
 
-if [ "$KernelVersion" = "$affectedKernel" ]; then
-	sed -i '232s/.*/ _seqdump\(sel, fmt, ##arg\)\; \\/' include/rtw_debug.h
-	sed -i '242s/.*/_seqdump\(sel, fmt, ##arg\)\; \\/' include/rtw_debug.h
-fi
+for i in "${!AffectedKernels[@]}"
+do
+   :
+   if [ "$KernelVersion" = "${AffectedKernels[$i]}" ]; then
+		sed -i '232s/.*/ _seqdump\(sel, fmt, ##arg\)\; \\/' include/rtw_debug.h
+		sed -i '242s/.*/_seqdump\(sel, fmt, ##arg\)\; \\/' include/rtw_debug.h
+		break
+   fi
+done
 
 ################################################################################
 #			If makd_drv exixt, execute it to select chip type
