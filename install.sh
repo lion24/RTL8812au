@@ -33,7 +33,6 @@ cd  $Drvfoulder
 echo "EXTRA_CFLAGS += -Wno-error=date-time" > /tmp/tmp-makefile
 cat Makefile >> /tmp/tmp-makefile
 cp /tmp/tmp-makefile Makefile
-cat Makefile
 
 ################################################################################
 #			Edit [2016-05-03]: On upgrading to Ubuntu 16.04, with its 4.4 kernel,
