@@ -74,54 +74,27 @@ if [ -e ./make_drv ]; then
 fi
 
 ################################################################################
-#                       make clean
+#			copy dkms.conf to the makefile dir
 ################################################################################
-echo "Authentication requested [root] for make clean:"
-if [ "`uname -r |grep fc`" == " " ]; then
-        sudo su -c "make clean"; Error=$?
-else
-        su -c "make clean"; Error=$?
-fi
+cp ../../dkms.conf ./
 
 ################################################################################
-#			Compile the driver
+#                       install via dkms
 ################################################################################
-echo "Authentication requested [root] for make driver:"
-if [ "`uname -r |grep fc`" == " " ]; then
-	sudo su -c make; Error=$?
-else	
-	su -c make; Error=$?
-fi
-################################################################################
-#			Check whether or not the driver compilation is done
-################################################################################
-module=`ls |grep -i 'ko'`
-echo "##################################################"
-if [ "$Error" != 0 ];then
-	echo "Compile make driver error: $Error"
-	echo "Please check error Mesg"
-	echo "##################################################"
-	exit
-else
-	echo "Compile make driver ok!!"	
-	echo "##################################################"
-fi
 
-if [ "`uname -r |grep fc`" == " " ]; then
-	echo "Authentication requested [root] for remove driver:"
-	sudo su -c "rmmod $module"
-	echo "Authentication requested [root] for insert driver:"
-	sudo su -c "insmod $module"
-	echo "Authentication requested [root] for install driver:"
-	sudo su -c "make install"
+if [ $(dpkg-query -W -f='${Status}' dkms 2>/dev/null | grep -c "ok installed") -eq 0 ];
+then
+	echo "##################################################"
+	echo -e "\nPackage 'dkms' is not installed.\nPlease install it using 'sudo apt-get install dkms -y'.\nInstallation is aborted!\n"
+	echo "##################################################"
+	exit 1
 else
-	echo "Authentication requested [root] for remove driver:"
-	su -c "rmmod $module"
-	echo "Authentication requested [root] for insert driver:"
-	su -c "insmod $module"
-	echo "Authentication requested [root] for install driver:"
-	su -c "make install"
+	sudo cp -R . /usr/src/rtl8812AU_linux-4.3.8
+	sudo dkms add -m rtl8812AU_linux -v 4.3.8
+	sudo dkms build -m rtl8812AU_linux -v 4.3.8
+	sudo dkms install -m rtl8812AU_linux -v 4.3.8
+
+	echo "##################################################"
+	echo "The Setup Script is completed !"
+	echo "##################################################"
 fi
-echo "##################################################"
-echo "The Setup Script is completed !"
-echo "##################################################"
