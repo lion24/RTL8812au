@@ -1,0 +1,1 @@
+sudo dkms remove rtl8812AU_linux/4.3.8 --all
