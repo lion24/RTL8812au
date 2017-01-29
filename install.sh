@@ -11,18 +11,7 @@ echo "Realtek Wi-Fi driver Auto installation script"
 echo "Novembor, 21 2011 v1.1.0"
 echo "##################################################"
 
-################################################################################
-#			Decompress the driver source tar ball
-################################################################################
-cd driver
-Drvfoulder=`ls |grep .tar.gz`
-echo "Decompress the driver source tar ball:"
-echo "	"$Drvfoulder
-tar zxvf $Drvfoulder
-
-Drvfoulder=`ls |grep -iv '.tar.gz'`
-echo "$Drvfoulder"
-cd  $Drvfoulder
+[ -d driver/src ] && cd driver/src
 
 ################################################################################
 #			Recent GCCs error if the build is non-reproducible because of using the date or time macros. In the driver directory, add the following to the Makefile:
