@@ -34,10 +34,12 @@
 
 
 #ifdef PLATFORM_FREEBSD
+#include <linux/version.h>
 #include <osdep_service_bsd.h>
 #endif
 
 #ifdef PLATFORM_LINUX
+#include <linux/version.h>
 #include <osdep_service_linux.h>
 
 #include <linux/version.h>
@@ -53,6 +55,11 @@
 
 #ifdef PLATFORM_OS_CE
 #include <osdep_service_ce.h>
+#endif
+
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#include <linux/sched/signal.h>
 #endif
 
 #define RTW_TIMER_HDL_NAME(name) rtw_##name##_timer_hdl

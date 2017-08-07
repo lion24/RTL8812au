@@ -795,7 +795,11 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		pwfd_info = &padapter->wfd_info;
 		if( padapter->wdinfo.driver_interface == DRIVER_CFG80211 )
 		{
-			pwfd_info->rtsp_ctrlport = ( u16 ) get_int_from_command( priv_cmd.buf );
+#ifdef CONFIG_COMPAT
+			pwfd_info->rtsp_ctrlport = ( u16 ) get_int_from_command( compat_ptr(priv_cmd.buf) );
+#else
+                        pwfd_info->rtsp_ctrlport = ( u16 ) get_int_from_command( priv_cmd.buf );
+#endif
                 }
 		break;
 	}
@@ -886,10 +890,7 @@ response:
 		}
 		priv_cmd.used_len = bytes_written;
 #ifdef CONFIG_COMPAT
-                compat_priv_cmd.buf = ptr_to_compat(priv_cmd.buf);
-                compat_priv_cmd.used_len = priv_cmd.used_len;
-                compat_priv_cmd.total_len = priv_cmd.total_len;
-                if (copy_to_user(&compat_priv_cmd, command, bytes_written)) {
+                if (copy_to_user(compat_ptr(priv_cmd.buf), command, bytes_written)) {
 #else
                 if (copy_to_user((void *)priv_cmd.buf, command, bytes_written)) {
 #endif
