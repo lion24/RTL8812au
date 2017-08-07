@@ -507,7 +507,7 @@ exit:
 }
 #endif /* CONFIG_WFD */
 
-int get_int_from_command(char *pcmd)
+int get_int_from_command(const char* pcmd)
 {
 	int i = 0;
 
@@ -823,6 +823,15 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 
 		if (padapter->wdinfo.driver_interface == DRIVER_CFG80211)
 			rtw_wfd_set_ctrl_port(padapter, (u16)get_int_from_command(priv_cmd.buf));
+		pwfd_info = &padapter->wfd_info;
+		if( padapter->wdinfo.driver_interface == DRIVER_CFG80211 )
+		{
+#ifdef CONFIG_COMPAT
+			pwfd_info->rtsp_ctrlport = ( u16 ) get_int_from_command( compat_ptr(priv_cmd.buf) );
+#else
+                        pwfd_info->rtsp_ctrlport = ( u16 ) get_int_from_command( priv_cmd.buf );
+#endif
+        }
 		break;
 	}
 	case ANDROID_WIFI_CMD_WFD_SET_MAX_TPUT: {
@@ -910,8 +919,12 @@ response:
 		} else
 			bytes_written++;
 		priv_cmd.used_len = bytes_written;
-		if (copy_to_user((void *)priv_cmd.buf, command, bytes_written)) {
-			RTW_INFO("%s: failed to copy data to user buffer\n", __FUNCTION__);
+#ifdef CONFIG_COMPAT
+                if (copy_to_user(compat_ptr(priv_cmd.buf), command, bytes_written)) {
+#else
+                if (copy_to_user((void *)priv_cmd.buf, command, bytes_written)) {
+#endif
+			DBG_871X("%s: failed to copy data to user buffer\n", __FUNCTION__);
 			ret = -EFAULT;
 		}
 	} else

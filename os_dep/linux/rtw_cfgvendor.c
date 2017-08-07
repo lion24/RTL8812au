@@ -47,6 +47,9 @@ extern bool match_mstat_sniff_rules(const enum mstat_f flags, const size_t size)
 struct sk_buff *dbg_rtw_cfg80211_vendor_event_alloc(struct wiphy *wiphy, struct wireless_dev *wdev, int len, int event_id, gfp_t gfp
 		, const enum mstat_f flags, const char *func, const int line)
 {
+        _adapter *padapter = wiphy_to_adapter(wiphy);
+        struct wireless_dev *wdev = padapter->rtw_wdev;
+
 	struct sk_buff *skb;
 	unsigned int truesize = 0;
 
@@ -56,7 +59,7 @@ struct sk_buff *dbg_rtw_cfg80211_vendor_event_alloc(struct wiphy *wiphy, struct 
 	skb = cfg80211_vendor_event_alloc(wiphy, wdev, len, event_id, gfp);
 #endif
 
-	if (skb)
+    if(skb)
 		truesize = skb->truesize;
 
 	if (!skb || truesize < len || match_mstat_sniff_rules(flags, truesize))
@@ -152,7 +155,19 @@ struct sk_buff *rtw_cfg80211_vendor_event_alloc(
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 1, 0))
 	skb = cfg80211_vendor_event_alloc(wiphy, len, event_id, gfp);
 #else
-	skb = cfg80211_vendor_event_alloc(wiphy, wdev, len, event_id, gfp);
+
+struct sk_buff *rtw_cfg80211_vendor_event_alloc(
+    struct wiphy *wiphy, int len, int event_id, gfp_t gfp)
+{
+	_adapter *padapter = wiphy_to_adapter(wiphy);
+        struct wireless_dev *wdev = padapter->rtw_wdev;
+
+        struct sk_buff *skb;
+
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 1, 0))
+        skb = cfg80211_vendor_event_alloc(wiphy, len, event_id, gfp);
+#else
+        skb = cfg80211_vendor_event_alloc(wiphy, wdev, len, event_id, gfp);
 #endif
 	return skb;
 }
