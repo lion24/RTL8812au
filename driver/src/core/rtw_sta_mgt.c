@@ -754,7 +754,7 @@ _func_enter_;
 	
 		psta = LIST_CONTAINOR(plist, struct sta_info, hash_list);
 		
-		if ((_rtw_memcmp(psta->hwaddr, addr, ETH_ALEN))== _TRUE) 
+		if ((_rtw_memcmp(psta->hwaddr, (u8 *)addr, ETH_ALEN))== _TRUE) 
 		{ // if found the matched address
 			break;
 		}
