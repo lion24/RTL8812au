@@ -40,10 +40,12 @@
 
 
 #ifdef PLATFORM_FREEBSD
-	#include <osdep_service_bsd.h>
+#include <linux/version.h>
+#include <osdep_service_bsd.h>
 #endif
 
 #ifdef PLATFORM_LINUX
+#include <linux/version.h>
 #include <osdep_service_linux.h>
 
 #include <linux/version.h>
@@ -61,7 +63,15 @@
 	#include <osdep_service_ce.h>
 #endif
 
-/* #include <rtw_byteorder.h> */
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#include <linux/sched/signal.h>
+#endif
+
+#define RTW_TIMER_HDL_NAME(name) rtw_##name##_timer_hdl
+#define RTW_DECLARE_TIMER_HDL(name) void RTW_TIMER_HDL_NAME(name)(RTW_TIMER_HDL_ARGS)
+
+//#include <rtw_byteorder.h>
 
 #ifndef BIT
 	#define BIT(x)	(1 << (x))
