@@ -1,12 +1,4 @@
 EXTRA_CFLAGS += -Wno-error=date-time
-EXTRA_CFLAGS += -Wno-error=date-time
-EXTRA_CFLAGS += -Wno-error=date-time
-EXTRA_CFLAGS += -Wno-error=date-time
-EXTRA_CFLAGS += -Wno-error=date-time
-EXTRA_CFLAGS += -Wno-error=date-time
-EXTRA_CFLAGS += -Wno-error=date-time
-EXTRA_CFLAGS += -Wno-error=date-time
-EXTRA_CFLAGS += -Wno-error=date-time
 EXTRA_CFLAGS += $(USER_EXTRA_CFLAGS)
 EXTRA_CFLAGS += -O1
 #EXTRA_CFLAGS += -O3
@@ -824,6 +816,7 @@ endif
 
 ifeq ($(CONFIG_PLATFORM_I386_PC), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
 SUBARCH := $(shell uname -m | sed -e s/i.86/i386/)
 ARCH ?= $(SUBARCH)
 CROSS_COMPILE ?=
