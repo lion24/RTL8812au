@@ -11,8 +11,6 @@ echo "Realtek Wi-Fi driver Auto installation script"
 echo "Novembor, 21 2011 v1.1.0"
 echo "##################################################"
 
-[ -d driver/src ] && cd driver/src
-
 ################################################################################
 #			Recent GCCs error if the build is non-reproducible because of using the date or time macros. In the driver directory, add the following to the Makefile:
 #			EXTRA_CFLAGS += -Wno-error=date-time
@@ -61,13 +59,6 @@ do
 done
 
 ################################################################################
-#			If makd_drv exixt, execute it to select chip type
-################################################################################
-if [ -e ./make_drv ]; then
-	./make_drv
-fi
-
-################################################################################
 #                       install via dkms
 ################################################################################
 
@@ -80,7 +71,6 @@ then
 	echo "##################################################"
 	exit 1
 else
-	cp ../../dkms.conf ./ #copy dkms.conf to the extracted tarball dir
 	sudo cp -R . /usr/src/rtl8812AU_linux-4.3.8
 	sudo dkms add -m rtl8812AU_linux -v 4.3.8
 	sudo dkms build -m rtl8812AU_linux -v 4.3.8
