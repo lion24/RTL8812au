@@ -136,6 +136,7 @@ CONFIG_PLATFORM_ARM_RTD299X = n
 CONFIG_PLATFORM_ARM_SPREADTRUM_6820 = n
 CONFIG_PLATFORM_ARM_SPREADTRUM_8810 = n
 CONFIG_PLATFORM_ARM_WMT = n
+CONFIG_PLATFORM_ARM_RPI = n
 CONFIG_PLATFORM_TI_DM365 = n
 CONFIG_PLATFORM_MOZART = n
 CONFIG_PLATFORM_RTK119X = n
@@ -1709,6 +1710,15 @@ CROSS_COMPILE := /home/android_sdk/Telechips/v13.05_r1-tcc-android-4.2.2_tcc893x
 KSRC := /home/android_sdk/Telechips/v13.05_r1-tcc-android-4.2.2_tcc893x-evm_build/kernel
 MODULE_NAME := wlan
 endif 
+
+ifeq ($(CONFIG_PLATFORM_ARM_RPI), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+ARCH := arm
+CROSS_COMPILE :=
+KVER ?= $(shell uname -r)
+KSRC ?= /lib/modules/$(KVER)/build
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+endif
 
 ifeq ($(CONFIG_MULTIDRV), y)
 
