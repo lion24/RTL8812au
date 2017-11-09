@@ -9318,8 +9318,33 @@ int issue_nulldata(_adapter *padapter, unsigned char *da, unsigned int power_mod
 	u32 start = rtw_get_current_time();
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
-	struct sta_info *psta;
-	u8 macid_sleep_reg_access = _TRUE;
+	WLAN_BSSID_EX		*pnetwork = (WLAN_BSSID_EX*)(&(pmlmeinfo->network));
+	u8 state_backup = (pmlmeinfo->state&0x03);
+	u8 ASIX_ID[]= {0x00, 0x0E, 0xC6};
+
+	//set_opmode_cmd(padapter, infra_client_with_mlme);
+
+#if 0
+	/*
+	 * For safety, prevent from keeping macid sleep.
+	 * If we can sure all power mode enter/leave are paired,
+	 * this check can be removed.
+	 * Lucas@20131113
+	 */
+	/* wakeup macid after disconnect. */
+	{
+		struct sta_info *psta;
+		psta = rtw_get_stainfo(&padapter->stapriv, get_my_bssid(pnetwork));
+		if (psta)
+			rtw_hal_macid_wakeup(padapter, psta->mac_id);
+	}
+#endif	
+
+	rtw_hal_set_hwreg(padapter, HW_VAR_MLME_DISCONNECT, 0);
+	rtw_hal_set_hwreg(padapter, HW_VAR_BSSID, null_addr);
+
+	//set MSR to no link state -> infra. mode
+	Set_MSR(padapter, _HW_STATE_STATION_);
 
 #ifdef CONFIG_MCC_MODE
 	if (MCC_EN(padapter)) {

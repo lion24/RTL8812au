@@ -63,7 +63,7 @@ static struct country_code_to_enum_rd allCountries[] = {
 		 NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_IBSS)
 
 static const struct ieee80211_regdomain rtw_regdom_rd = {
-	.n_reg_rules = 3,
+	.n_reg_rules = 4,
 	.alpha2 = "99",
 	.reg_rules = {
 		RTW_2GHZ_CH01_11,

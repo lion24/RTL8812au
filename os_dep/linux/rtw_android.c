@@ -582,7 +582,7 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 	struct wifi_display_info		*pwfd_info;
 #endif
 #ifdef CONFIG_COMPAT
-        compat_android_wifi_priv_cmd compat_priv_cmd;
+    compat_android_wifi_priv_cmd compat_priv_cmd;
 #endif
 
 	rtw_lock_suspend();
