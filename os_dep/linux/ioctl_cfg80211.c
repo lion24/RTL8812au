@@ -1731,14 +1731,15 @@ static int cfg80211_rtw_set_default_key(struct wiphy *wiphy,
 
 }
 
-static int cfg80211_rtw_get_station(struct wiphy *wiphy,
+static int cfg80211_rtw_get_station(
+					struct wiphy *wiphy,
 				    struct net_device *ndev,
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0))
-                                    const u8 *mac,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 0))
+                    const u8 *mac,
 #else 
 				    u8 *mac, 
 #endif
-                                    struct station_info *sinfo)
+                    struct station_info *sinfo)
 {
 	int ret = 0;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
@@ -4205,12 +4206,13 @@ static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev)
 #endif //(LINUX_VERSION_CODE < KERNEL_VERSION(3,4,0))
 
 static int cfg80211_rtw_add_station(struct wiphy *wiphy, struct net_device *ndev,
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0))
-                                    const u8 *mac, 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0))
+                                    u8 *mac,
 #else
-                                    u8 *mac, 
+                                    const u8 *mac,
 #endif
-                                    struct station_parameters *params)
+                                    struct station_parameters *params
+                                    )
 {
 	DBG_871X(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 	
@@ -4225,7 +4227,7 @@ static int cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 #else
                                     struct station_del_parameters *params
 #endif
-                                    )
+									)
 {
 	int ret=0;	
 	_irqL irqL;
@@ -4334,7 +4336,7 @@ static int  cfg80211_rtw_change_station(struct wiphy *wiphy, struct net_device *
 
 struct sta_info *rtw_sta_info_get_by_idx(const int idx, struct sta_priv *pstapriv)
 
-{
+{
 	_list	*phead, *plist;
 	struct sta_info *psta = NULL;
 	int i = 0;

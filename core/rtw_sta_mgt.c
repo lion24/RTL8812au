@@ -335,10 +335,13 @@ _func_enter_;
 
 	//_enter_critical_bh(&(pfree_sta_queue->lock), &irqL);
 	_enter_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
-	if (_rtw_queue_empty(pfree_sta_queue) == _TRUE)
+	if (!pstapriv->padapter->pnetdev)
 	{
-		//_exit_critical_bh(&(pfree_sta_queue->lock), &irqL);
-		_exit_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
+		psta = NULL;
+	}
+	else if (_rtw_queue_empty(pfree_sta_queue) == _TRUE)
+	{
+		//_exit_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
 		psta = NULL;
 	}
 	else

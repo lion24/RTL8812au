@@ -176,20 +176,10 @@ _func_exit_;
 extern void indicate_wx_scan_complete_event(_adapter *padapter);
 void rtw_os_indicate_scan_done( _adapter *padapter, bool aborted)
 {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 8, 0))
-    struct cfg80211_scan_info info;
-#endif
-
 #ifdef CONFIG_IOCTL_CFG80211
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 8, 0))
-    memset(&info, 0, sizeof(info));
-    info.aborted = aborted;
-    rtw_cfg80211_indicate_scan_done(padapter, &info);
-#else
     rtw_cfg80211_indicate_scan_done(padapter, aborted);
 #endif
 	indicate_wx_scan_complete_event(padapter);
-#endif
 }
 
 static RT_PMKID_LIST   backupPMKIDList[ NUM_PMKID_CACHE ];
