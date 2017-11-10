@@ -19,7 +19,6 @@
  ******************************************************************************/
 
 #include <drv_types.h>
-#include "rtw_proc.h"
 
 #ifdef CONFIG_PROC_DEBUG
 
