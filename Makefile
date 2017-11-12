@@ -51,7 +51,7 @@ CONFIG_WAPI_SUPPORT = n
 CONFIG_EFUSE_CONFIG_FILE = n
 CONFIG_EXT_CLK = n
 CONFIG_TRAFFIC_PROTECT = y
-CONFIG_LOAD_PHY_PARA_FROM_FILE = y
+CONFIG_LOAD_PHY_PARA_FROM_FILE = n
 CONFIG_CALIBRATE_TX_POWER_BY_REGULATORY = n
 CONFIG_CALIBRATE_TX_POWER_TO_MAX = n
 CONFIG_RTW_ADAPTIVITY_EN = disable
@@ -59,7 +59,6 @@ CONFIG_RTW_ADAPTIVITY_MODE = normal
 CONFIG_SKIP_SIGNAL_SCALE_MAPPING = n
 CONFIG_80211W = n
 CONFIG_REDUCE_TX_CPU_LOADING = n
-CONFIG_BR_EXT = y
 CONFIG_ANTENNA_DIVERSITY = n
 ######################## Wake On Lan ##########################
 CONFIG_WOWLAN = n
@@ -804,12 +803,6 @@ ifeq ($(CONFIG_REDUCE_TX_CPU_LOADING), y)
 EXTRA_CFLAGS += -DCONFIG_REDUCE_TX_CPU_LOADING
 endif
 
-ifeq ($(CONFIG_BR_EXT), y)
-BR_NAME = br0
-EXTRA_CFLAGS += -DCONFIG_BR_EXT
-EXTRA_CFLAGS += '-DCONFIG_BR_EXT_BRNAME="'$(BR_NAME)'"'
-endif
-
 ifeq ($(CONFIG_ANTENNA_DIVERSITY), y)
 EXTRA_CFLAGS += -DCONFIG_ANTENNA_DIVERSITY
 endif
@@ -1422,7 +1415,6 @@ rtk_core :=	core/rtw_cmd.o \
 		core/rtw_xmit.o	\
 		core/rtw_p2p.o \
 		core/rtw_tdls.o \
-		core/rtw_br_ext.o \
 		core/rtw_iol.o \
 		core/rtw_sreset.o \
 		core/rtw_btcoex.o \
