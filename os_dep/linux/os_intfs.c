@@ -528,9 +528,6 @@ _func_enter_;
 
 #ifdef CONFIG_LAYER2_ROAMING
 	registry_par->max_roaming_times = (u8)rtw_max_roaming_times;
-#ifdef CONFIG_INTEL_WIDI
-	registry_par->max_roaming_times = (u8)rtw_max_roaming_times + 2;
-#endif // CONFIG_INTEL_WIDI
 #endif
 
 #ifdef CONFIG_IOL
@@ -1294,15 +1291,6 @@ _func_enter_;
 	rtw_hal_sreset_init(padapter);
 #endif
 
-#ifdef CONFIG_INTEL_WIDI
-	if(rtw_init_intel_widi(padapter) == _FAIL)
-	{
-		DBG_871X("Can't rtw_init_intel_widi\n");
-		ret8=_FAIL;
-		goto exit;
-	}
-#endif //CONFIG_INTEL_WIDI
-
 #ifdef CONFIG_WAPI_SUPPORT
 	padapter->WapiSupport = true; //set true temp, will revise according to Efuse or Registry value later.
 	rtw_wapi_init(padapter);
@@ -1402,10 +1390,6 @@ u8 rtw_free_drv_sw(_adapter *padapter)
 	// add for CONFIG_IEEE80211W, none 11w also can use
 	_rtw_spinlock_free(&padapter->security_key_mutex);
 	
-#ifdef CONFIG_INTEL_WIDI
-	rtw_free_intel_widi(padapter);
-#endif //CONFIG_INTEL_WIDI
-
 	free_mlme_ext_priv(&padapter->mlmeextpriv);
 
 #ifdef CONFIG_TDLS
