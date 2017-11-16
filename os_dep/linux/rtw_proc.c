@@ -107,7 +107,7 @@ static ssize_t proc_set_log_level(struct file *file, const char __user *buffer, 
 
 	if (buffer && !copy_from_user(tmp, buffer, sizeof(tmp))) {		
 
-		int num = sscanf(tmp, "%d ", &log_level);
+		sscanf(tmp, "%d ", &log_level);
 
 		if( log_level >= _drv_always_ && log_level <= _drv_debug_ )
 		{
@@ -134,7 +134,7 @@ static int proc_get_mstat(struct seq_file *m, void *v)
 * rtw_drv_proc:
 * init/deinit when register/unregister driver
 */
-const struct rtw_proc_hdl drv_proc_hdls [] = {
+const struct rtw_proc_hdl drv_proc_hdls[] = {
 	{"ver_info", proc_get_drv_version, NULL},
 	{"log_level", proc_get_log_level, proc_set_log_level},
 #ifdef DBG_MEM_ALLOC
@@ -571,10 +571,6 @@ static int proc_get_macid_info(struct seq_file *m, void *v)
 
 static int proc_get_cam(struct seq_file *m, void *v)
 {
-	struct net_device *dev = m->private;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-	u8 i;
-
 	return 0;
 }
 
@@ -684,7 +680,7 @@ ssize_t proc_set_btinfo_evt(struct file *file, const char __user *buffer, size_t
 * rtw_adapter_proc:
 * init/deinit when register/unregister net_device
 */
-const struct rtw_proc_hdl adapter_proc_hdls [] = {
+const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	{"write_reg", proc_get_dummy, proc_set_write_reg},
 	{"read_reg", proc_get_read_reg, proc_set_read_reg},
 	{"fwstate", proc_get_fwstate, NULL},
@@ -751,18 +747,12 @@ const struct rtw_proc_hdl adapter_proc_hdls [] = {
 
 	{"en_fwps", proc_get_en_fwps, proc_set_en_fwps},
 
-	//{"path_rssi", proc_get_two_path_rssi, NULL},
-//	{"rssi_disp",proc_get_rssi_disp, proc_set_rssi_disp},
-
 #ifdef CONFIG_BT_COEXIST
 	{"btcoex_dbg", proc_get_btcoex_dbg, proc_set_btcoex_dbg},
 	{"btcoex", proc_get_btcoex_info, NULL},
 	{"btinfo_evt", proc_get_dummy, proc_set_btinfo_evt},
 #endif /* CONFIG_BT_COEXIST */
 
-#if defined(DBG_CONFIG_ERROR_DETECT)
-	{"sreset", proc_get_sreset, proc_set_sreset},
-#endif /* DBG_CONFIG_ERROR_DETECT */
 	{"linked_info_dump",proc_get_linked_info_dump,proc_set_linked_info_dump},
 
 #ifdef CONFIG_GPIO_API
@@ -962,7 +952,7 @@ ssize_t proc_set_odm_adaptivity(struct file *file, const char __user *buffer, si
 * rtw_odm_proc:
 * init/deinit when register/unregister net_device, along with rtw_adapter_proc
 */
-const struct rtw_proc_hdl odm_proc_hdls [] = {
+const struct rtw_proc_hdl odm_proc_hdls[] = {
 	{"dbg_comp", proc_get_odm_dbg_comp, proc_set_odm_dbg_comp},
 	{"dbg_level", proc_get_odm_dbg_level, proc_set_odm_dbg_level},
 	{"ability", proc_get_odm_ability, proc_set_odm_ability},
@@ -1063,7 +1053,6 @@ struct proc_dir_entry *rtw_adapter_proc_init(struct net_device *dev)
 	struct proc_dir_entry *dir_dev = NULL;
 	struct proc_dir_entry *entry = NULL;
 	_adapter *adapter = rtw_netdev_priv(dev);
-	u8 rf_type;
 	ssize_t i;
 
 	if (drv_proc == NULL) {

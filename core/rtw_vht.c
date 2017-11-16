@@ -272,7 +272,6 @@ void	update_sta_vht_info_apmode(_adapter *padapter, PVOID sta)
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct vht_priv	*pvhtpriv_ap = &pmlmepriv->vhtpriv;
 	struct vht_priv	*pvhtpriv_sta = &psta->vhtpriv;
-	struct ht_priv		*phtpriv_sta = &psta->htpriv;
 	u8	cur_ldpc_cap=0, cur_stbc_cap=0, cur_beamform_cap=0, bw_mode = 0;
 	u8	*pcap_mcs;
 
@@ -446,7 +445,6 @@ void rtw_process_vht_op_mode_notify(_adapter *padapter, u8 *pframe, PVOID sta)
 	struct sta_info		*psta = (struct sta_info *)sta;
 	struct mlme_priv 		*pmlmepriv = &padapter->mlmepriv;
 	struct vht_priv		*pvhtpriv = &pmlmepriv->vhtpriv;
-	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	u8	target_bw;
 	u8	target_rxss, current_rxss;
 	u8	update_ra = _FALSE;
@@ -483,9 +481,6 @@ void rtw_process_vht_op_mode_notify(_adapter *padapter, u8 *pframe, PVOID sta)
 u32	rtw_build_vht_operation_ie(_adapter *padapter, u8 *pbuf, u8 channel)
 {
 	struct registry_priv	*pregistrypriv = &padapter->registrypriv;
-	struct mlme_priv		*pmlmepriv = &padapter->mlmepriv;
-	struct vht_priv		*pvhtpriv = &pmlmepriv->vhtpriv;
-	//struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	u8	ChnlWidth, center_freq, bw_mode;
 	u32	len = 0;
 	u8	operation[5];

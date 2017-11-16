@@ -129,53 +129,35 @@ static struct ieee80211_rate rtw_rates[] = {
 	RATETAB_ENT(540, 0x800, 0),
 };
 
-#define rtw_a_rates		(rtw_rates + 4)
-#define RTW_A_RATES_NUM	8
 #define rtw_g_rates		(rtw_rates + 0)
-#define RTW_G_RATES_NUM	12
-
-#define RTW_2G_CHANNELS_NUM 14
-#define RTW_5G_CHANNELS_NUM 37
+#define rtw_g_rates_size ARRAY_SIZE(rtw_rates)
+#define rtw_a_rates		(rtw_rates + 4)
+#define rtw_a_rates_size (rtw_g_rates_size - 4)
 
 static struct ieee80211_channel rtw_2ghz_channels[] = {
-	CHAN2G(1, 2412, 0),
-	CHAN2G(2, 2417, 0),
-	CHAN2G(3, 2422, 0),
-	CHAN2G(4, 2427, 0),
-	CHAN2G(5, 2432, 0),
-	CHAN2G(6, 2437, 0),
-	CHAN2G(7, 2442, 0),
-	CHAN2G(8, 2447, 0),
-	CHAN2G(9, 2452, 0),
-	CHAN2G(10, 2457, 0),
-	CHAN2G(11, 2462, 0),
-	CHAN2G(12, 2467, 0),
-	CHAN2G(13, 2472, 0),
-	CHAN2G(14, 2484, 0),
+	CHAN2G(1, 2412, 0),	CHAN2G(2, 2417, 0),	CHAN2G(3, 2422, 0),	CHAN2G(4, 2427, 0),
+	CHAN2G(5, 2432, 0),	CHAN2G(6, 2437, 0),	CHAN2G(7, 2442, 0),	CHAN2G(8, 2447, 0),
+	CHAN2G(9, 2452, 0),	CHAN2G(10, 2457, 0), CHAN2G(11, 2462, 0), CHAN2G(12, 2467, 0),
+	CHAN2G(13, 2472, 0), CHAN2G(14, 2484, 0),
 };
 
 static struct ieee80211_channel rtw_5ghz_a_channels[] = {
-	CHAN5G(34, 0),		CHAN5G(36, 0),
-	CHAN5G(38, 0),		CHAN5G(40, 0),
-	CHAN5G(42, 0),		CHAN5G(44, 0),
-	CHAN5G(46, 0),		CHAN5G(48, 0),
-	CHAN5G(52, 0),		CHAN5G(56, 0),
-	CHAN5G(60, 0),		CHAN5G(64, 0),
-	CHAN5G(100, 0),		CHAN5G(104, 0),
-	CHAN5G(108, 0),		CHAN5G(112, 0),
-	CHAN5G(116, 0),		CHAN5G(120, 0),
-	CHAN5G(124, 0),		CHAN5G(128, 0),
-	CHAN5G(132, 0),		CHAN5G(136, 0),
-	CHAN5G(140, 0),		CHAN5G(149, 0),
-	CHAN5G(153, 0),		CHAN5G(157, 0),
-	CHAN5G(161, 0),		CHAN5G(165, 0),
-	CHAN5G(184, 0),		CHAN5G(188, 0),
-	CHAN5G(192, 0),		CHAN5G(196, 0),
-	CHAN5G(200, 0),		CHAN5G(204, 0),
-	CHAN5G(208, 0),		CHAN5G(212, 0),
+	CHAN5G(34, 0),		CHAN5G(36, 0),      CHAN5G(38, 0),		CHAN5G(40, 0),
+	CHAN5G(42, 0),		CHAN5G(44, 0),  	CHAN5G(46, 0),		CHAN5G(48, 0),
+	CHAN5G(52, 0),		CHAN5G(56, 0),  	CHAN5G(60, 0),		CHAN5G(64, 0),
+	CHAN5G(100, 0),		CHAN5G(104, 0),  	CHAN5G(108, 0),		CHAN5G(112, 0),
+	CHAN5G(116, 0),		CHAN5G(120, 0), 	CHAN5G(124, 0),		CHAN5G(128, 0),
+	CHAN5G(132, 0),		CHAN5G(136, 0), 	CHAN5G(140, 0),		CHAN5G(149, 0),
+	CHAN5G(153, 0),		CHAN5G(157, 0), 	CHAN5G(161, 0),		CHAN5G(165, 0),
+	CHAN5G(184, 0),		CHAN5G(188, 0), 	CHAN5G(192, 0),		CHAN5G(196, 0),
+	CHAN5G(200, 0),		CHAN5G(204, 0), 	CHAN5G(208, 0),		CHAN5G(212, 0),
 	CHAN5G(216, 0),
 };
 
+#define RTW_G_RATES_NUM	12
+#define RTW_A_RATES_NUM	8
+#define RTW_2G_CHANNELS_NUM ARRAY_SIZE(rtw_2ghz_channels)
+#define RTW_5G_CHANNELS_NUM ARRAY_SIZE(rtw_5ghz_a_channels)
 
 void rtw_2g_channels_init(struct ieee80211_channel *channels)
 {
@@ -201,7 +183,7 @@ void rtw_2g_rates_init(struct ieee80211_rate *rates)
 void rtw_5g_rates_init(struct ieee80211_rate *rates)
 {
 	_rtw_memcpy(rates, rtw_a_rates,
-		sizeof(struct ieee80211_rate)*RTW_A_RATES_NUM
+		sizeof(struct ieee80211_rate)*rtw_a_rates_size
 	);
 }
 
@@ -276,7 +258,7 @@ void rtw_spt_band_free(struct ieee80211_supported_band *spt_band)
 	{
 		size = sizeof(struct ieee80211_supported_band)
 			+ sizeof(struct ieee80211_channel)*RTW_5G_CHANNELS_NUM
-			+ sizeof(struct ieee80211_rate)*RTW_A_RATES_NUM;		
+			+ sizeof(struct ieee80211_rate)*rtw_a_rates_size;		
 	}
 	else
 	{
@@ -671,7 +653,6 @@ void rtw_cfg80211_ibss_indicate_connect(_adapter *padapter)
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct wlan_network  *cur_network = &(pmlmepriv->cur_network);
 	struct wireless_dev *pwdev = padapter->rtw_wdev;
-	struct cfg80211_bss *bss = NULL;
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0))
 	struct wiphy *wiphy = pwdev->wiphy;
 	int freq = (int)cur_network->network.Configuration.DSConfig;
@@ -744,7 +725,6 @@ void rtw_cfg80211_indicate_connect(_adapter *padapter)
 #ifdef CONFIG_P2P
 	struct wifidirect_info *pwdinfo= &(padapter->wdinfo);
 #endif
-	struct cfg80211_bss *bss = NULL;
 
 	DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(padapter));
 	if (pwdev->iftype != NL80211_IFTYPE_STATION
@@ -931,7 +911,7 @@ void rtw_cfg80211_indicate_disconnect(_adapter *padapter)
 static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
 {
 	int ret = 0;
-	u32 wep_key_idx, wep_key_len,wep_total_len;
+	u32 wep_key_idx, wep_key_len;
 	struct sta_info *psta = NULL, *pbcmc_sta = NULL;	
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv 	*pmlmepriv = &padapter->mlmepriv;
@@ -1221,7 +1201,7 @@ exit:
 static int rtw_cfg80211_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
 {
 	int ret = 0;
-	u32 wep_key_idx, wep_key_len,wep_total_len;
+	u32 wep_key_idx, wep_key_len;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv 	*pmlmepriv = &padapter->mlmepriv;		
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
@@ -2008,13 +1988,6 @@ void rtw_cfg80211_surveydone_event_callback(_adapter *padapter)
 	struct	mlme_priv	*pmlmepriv = &(padapter->mlmepriv);	
 	_queue				*queue	= &(pmlmepriv->scanned_queue);	
 	struct	wlan_network	*pnetwork = NULL;
-	u32 cnt=0;
-	u32 wait_for_surveydone;
-	sint wait_status;
-#ifdef CONFIG_P2P
-	struct	wifidirect_info*	pwdinfo = &padapter->wdinfo;
-#endif //CONFIG_P2P
-	struct rtw_wdev_priv *pwdev_priv = adapter_wdev_data(padapter);
 
 #ifdef CONFIG_DEBUG_CFG80211
 	DBG_8192C("%s\n", __func__);
@@ -2066,7 +2039,6 @@ static int rtw_cfg80211_set_probe_req_wpsp2pie(_adapter *padapter, char *buf, in
 	u32	p2p_ielen = 0;	
 	u8 *p2p_ie;
 	u32	wfd_ielen = 0;	
-	u8 *wfd_ie;
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);	
 
 #ifdef CONFIG_DEBUG_CFG80211
@@ -2192,10 +2164,6 @@ static int cfg80211_rtw_scan(struct wiphy *wiphy
 	NDIS_802_11_SSID ssid[RTW_SSID_SCAN_AMOUNT];
 	struct rtw_ieee80211_channel ch[RTW_CHANNEL_SCAN_AMOUNT];
 	_irqL	irqL;
-	u8 *wps_ie=NULL;
-	uint wps_ielen=0;	
-	u8 *p2p_ie=NULL;
-	uint p2p_ielen=0;
 	u8 survey_times=3;
 	u8 survey_times_for_one_ch=6;
 	struct cfg80211_ssid *ssids = request->ssids;
@@ -2472,9 +2440,6 @@ check_need_indicate_scan_done:
 		rtw_cfg80211_indicate_scan_done(padapter, _FALSE);
 	}
 
-cancel_ps_deny:
-	rtw_ps_deny_cancel(padapter, PS_DENY_SCAN);
-
 exit:
 	return ret;
 	
@@ -2482,36 +2447,7 @@ exit:
 
 static int cfg80211_rtw_set_wiphy_params(struct wiphy *wiphy, u32 changed)
 {
-#if 0
-	struct iwm_priv *iwm = wiphy_to_iwm(wiphy);
-
-	if (changed & WIPHY_PARAM_RTS_THRESHOLD &&
-	    (iwm->conf.rts_threshold != wiphy->rts_threshold)) {
-		int ret;
-
-		iwm->conf.rts_threshold = wiphy->rts_threshold;
-
-		ret = iwm_umac_set_config_fix(iwm, UMAC_PARAM_TBL_CFG_FIX,
-					     CFG_RTS_THRESHOLD,
-					     iwm->conf.rts_threshold);
-		if (ret < 0)
-			return ret;
-	}
-
-	if (changed & WIPHY_PARAM_FRAG_THRESHOLD &&
-	    (iwm->conf.frag_threshold != wiphy->frag_threshold)) {
-		int ret;
-
-		iwm->conf.frag_threshold = wiphy->frag_threshold;
-
-		ret = iwm_umac_set_config_fix(iwm, UMAC_PARAM_TBL_FA_CFG_FIX,
-					     CFG_FRAG_THRESHOLD,
-					     iwm->conf.frag_threshold);
-		if (ret < 0)
-			return ret;
-	}
-#endif
-	DBG_8192C("%s\n", __func__);
+	
 	return 0;
 }
 
@@ -2688,13 +2624,16 @@ static int rtw_cfg80211_set_key_mgt(struct security_priv *psecuritypriv, u32 key
 static int rtw_cfg80211_set_wpa_ie(_adapter *padapter, u8 *pie, size_t ielen)
 {
 	u8 *buf=NULL, *pos=NULL;	
-	u32 left; 	
 	int group_cipher = 0, pairwise_cipher = 0;
 	int ret = 0;
 	int wpa_ielen=0;
 	int wpa2_ielen=0;
 	u8 *pwpa, *pwpa2;
 	u8 null_addr[]= {0,0,0,0,0,0};
+
+#ifdef CONFIG_WFD
+	uint wfd_ielen=0;
+#endif
 
 	if (pie == NULL || !ielen) {
 		/* Treat this as normal case, but need to clear WIFI_UNDER_WPS */
@@ -2861,10 +2800,8 @@ static int rtw_cfg80211_set_wpa_ie(_adapter *padapter, u8 *pie, size_t ielen)
 
 	#ifdef CONFIG_WFD
 	{//check wfd_ie for assoc req; 
-		uint wfd_ielen=0;
-		u8 *wfd_ie;
 		struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
-
+		
 		if(rtw_get_wfd_ie(buf, ielen, NULL, &wfd_ielen))
 		{
 			#ifdef CONFIG_DEBUG_CFG80211
@@ -3017,20 +2954,11 @@ static int cfg80211_rtw_connect(struct wiphy *wiphy, struct net_device *ndev,
 				 struct cfg80211_connect_params *sme)
 {
 	int ret=0;
-	_irqL irqL;	
-	_list *phead;	
-	struct wlan_network *pnetwork = NULL;
 	NDIS_802_11_AUTHENTICATION_MODE authmode;	
 	NDIS_802_11_SSID ndis_ssid;	
-	const u8 *dst_ssid, *src_ssid;
-	u8 *dst_bssid, *src_bssid;
-	//u8 matched_by_bssid=_FALSE;
-	//u8 matched_by_ssid=_FALSE;
-	u8 matched=_FALSE;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;	
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
-	_queue *queue = &pmlmepriv->scanned_queue;	
 
 	padapter->mlmepriv.not_indic_disco = _TRUE;
 	
@@ -3487,10 +3415,6 @@ static int cfg80211_rtw_flush_pmksa(struct wiphy *wiphy,
 #ifdef CONFIG_AP_MODE
 void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint frame_len)
 {
-	s32 freq;
-	int channel;
-	struct wireless_dev *pwdev = padapter->rtw_wdev;
-	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);	
 	struct net_device *ndev = padapter->pnetdev;
 
 	DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(padapter));
@@ -3542,15 +3466,6 @@ void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint f
 
 void rtw_cfg80211_indicate_sta_disassoc(_adapter *padapter, unsigned char *da, unsigned short reason)
 {
-	s32 freq;
-	int channel;
-	u8 *pmgmt_frame;
-	uint frame_len;
-	struct rtw_ieee80211_hdr *pwlanhdr;
-	unsigned short *fctrl;	
-	u8 mgmt_buf[128] = {0};
-	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
-	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct net_device *ndev = padapter->pnetdev;
 	
 	DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(padapter));
@@ -3779,10 +3694,12 @@ fail:
 	
 }
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,2,0))
 static void rtw_cfg80211_monitor_if_set_multicast_list(struct net_device *ndev)
 {
 	DBG_8192C("%s\n", __func__);
 }
+#endif
 
 static int rtw_cfg80211_monitor_if_set_mac_address(struct net_device *ndev, void *addr)
 {
@@ -4015,10 +3932,8 @@ static int rtw_add_beacon(_adapter *adapter, const u8 *head, size_t head_len, co
 	u8 *pbuf = NULL;
 	uint len, wps_ielen=0;	
 	uint p2p_ielen=0;
-	u8 *p2p_ie;
 	u8 got_p2p_ie = _FALSE;
 	struct mlme_priv *pmlmepriv = &(adapter->mlmepriv);
-	//struct sta_priv *pstapriv = &padapter->stapriv;
 	
 
 	DBG_8192C("%s beacon_head_len=%zu, beacon_tail_len=%zu\n", __FUNCTION__, head_len, tail_len);
@@ -4057,7 +3972,6 @@ static int rtw_add_beacon(_adapter *adapter, const u8 *head, size_t head_len, co
 		//check p2p if enable
 		if(rtw_get_p2p_ie(pbuf+_FIXED_IE_LENGTH_, len-_FIXED_IE_LENGTH_, NULL, &p2p_ielen))
 		{		
-			struct mlme_ext_priv *pmlmeext = &adapter->mlmeextpriv;
 			struct wifidirect_info *pwdinfo= &(adapter->wdinfo);
 
 			DBG_8192C("got p2p_ie, len=%d\n", p2p_ielen);
@@ -4386,26 +4300,13 @@ exit:
 static int	cfg80211_rtw_change_bss(struct wiphy *wiphy, struct net_device *ndev,
 			      struct bss_parameters *params)
 {
-	u8 i;
 
 	DBG_871X(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
-/*
-	DBG_8192C("use_cts_prot=%d\n", params->use_cts_prot);
-	DBG_8192C("use_short_preamble=%d\n", params->use_short_preamble);
-	DBG_8192C("use_short_slot_time=%d\n", params->use_short_slot_time);
-	DBG_8192C("ap_isolate=%d\n", params->ap_isolate);
-
-	DBG_8192C("basic_rates_len=%d\n", params->basic_rates_len);
-	for(i=0; i<params->basic_rates_len; i++)
-	{		
-		DBG_8192C("basic_rates=%d\n", params->basic_rates[i]);
-		
-	}	
-*/	
 	return 0;
 	
 }
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 6, 0))
 static int	cfg80211_rtw_set_channel(struct wiphy *wiphy
 	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,35))
 	, struct net_device *ndev
@@ -4418,6 +4319,7 @@ static int	cfg80211_rtw_set_channel(struct wiphy *wiphy
 	
 	return 0;
 }
+#endif //(LINUX_VERSION_CODE < KERNEL_VERSION(3, 6, 0))
 
 static int	cfg80211_rtw_auth(struct wiphy *wiphy, struct net_device *ndev,
 			struct cfg80211_auth_request *req)
@@ -4441,7 +4343,6 @@ void rtw_cfg80211_rx_action_p2p(_adapter *padapter, u8 *pmgmt_frame, uint frame_
 	int type;
 	s32 freq;
 	int channel;
-	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
 	u8 category, action;
 
 	channel = rtw_get_oper_ch(padapter);
@@ -4473,7 +4374,6 @@ void rtw_cfg80211_rx_p2p_action_public(_adapter *padapter, u8 *pmgmt_frame, uint
 	int type;
 	s32 freq;
 	int channel;
-	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
 	u8 category, action;
 
 	channel = rtw_get_oper_ch(padapter);
@@ -4512,8 +4412,6 @@ void rtw_cfg80211_rx_action(_adapter *adapter, u8 *frame, uint frame_len, const 
 {
 	s32 freq;
 	int channel;
-	struct mlme_ext_priv *pmlmeext = &(adapter->mlmeextpriv);	
-	struct rtw_wdev_priv *pwdev_priv = adapter_wdev_data(adapter);
 	u8 category, action;
 
 	channel = rtw_get_oper_ch(adapter);
@@ -4569,7 +4467,6 @@ void rtw_cfg80211_issue_p2p_provision_request(_adapter *padapter, const u8 *buf,
 	unsigned short				*fctrl;
 	struct xmit_priv			*pxmitpriv = &(padapter->xmitpriv);
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
-	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	
 	struct wifidirect_info *pwdinfo = &(padapter->wdinfo);
 	u8 *frame_body = (unsigned char *)(buf + sizeof(struct rtw_ieee80211_hdr_3addr));
@@ -4788,7 +4685,6 @@ static s32 cfg80211_rtw_remain_on_channel(struct wiphy *wiphy,
 	struct mlme_ext_priv *pmlmeext;
 	struct wifidirect_info *pwdinfo;
 	struct cfg80211_wifidirect_info *pcfg80211_wdinfo;
-	u8 is_p2p_find = _FALSE;
 	
 	if (ndev == NULL) {
 		return  -EINVAL;
@@ -5043,14 +4939,8 @@ static int _cfg80211_rtw_mgmt_tx(_adapter *padapter, u8 tx_ch, const u8 *buf, si
 	int ret = _FAIL;
 	bool ack = _TRUE;
 	struct rtw_ieee80211_hdr *pwlanhdr;
-	struct rtw_wdev_priv *pwdev_priv = adapter_wdev_data(padapter);
 	struct xmit_priv	*pxmitpriv = &(padapter->xmitpriv);
-	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);	
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
-#ifdef 	CONFIG_P2P
-	struct wifidirect_info *pwdinfo = &padapter->wdinfo;
-#endif //CONFIG_P2P
-	//struct cfg80211_wifidirect_info *pcfg80211_wdinfo = &padapter->cfg80211_wdinfo;
 
 	rtw_set_scan_deny(padapter, 1000);
 
@@ -5203,24 +5093,15 @@ static int cfg80211_rtw_mgmt_tx(struct wiphy *wiphy,
 #endif
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,14,0)) || defined(COMPAT_KERNEL_RELEASE)
 	struct ieee80211_channel *chan,
-	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)) || defined(COMPAT_KERNEL_RELEASE)
-	bool offchan,
-	#endif
 	#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,8,0))
 	enum nl80211_channel_type channel_type,
 	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,37)) || defined(COMPAT_KERNEL_RELEASE)
 	bool channel_type_valid,
 	#endif
 	#endif
-	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)) || defined(COMPAT_KERNEL_RELEASE)
-	unsigned int wait,
-	#endif
 	const u8 *buf, size_t len,
 	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,2,0))
 	bool no_cck,
-	#endif
-	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,3,0))
-	bool dont_wait_for_ack,
 	#endif
 #else
 	struct cfg80211_mgmt_tx_params *params,
@@ -5232,12 +5113,8 @@ static int cfg80211_rtw_mgmt_tx(struct wiphy *wiphy,
 #endif
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,14,0)) || defined(COMPAT_KERNEL_RELEASE)
 	struct ieee80211_channel *chan = params->chan;
-	bool offchan = params->offchan;
-	unsigned int wait = params->wait;
 	const u8 *buf = params->buf;
 	size_t len = params->len;
-	bool no_cck = params->no_cck;
-	bool dont_wait_for_ack = params->dont_wait_for_ack;
 #endif
 	int ret = 0;
 	int tx_ret;
@@ -5573,7 +5450,6 @@ static int rtw_cfg80211_set_beacon_wpsp2pie(struct net_device *ndev, char *buf, 
 	u8 wps_oui[8]={0x0,0x50,0xf2,0x04};	
 	u8 *p2p_ie;
 	u32	wfd_ielen = 0;	
-	u8 *wfd_ie;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
@@ -5685,7 +5561,6 @@ static int rtw_cfg80211_set_probe_resp_wpsp2pie(struct net_device *net, char *bu
 	u32	p2p_ielen = 0;	
 	u8 *p2p_ie;
 	u32	wfd_ielen = 0;	
-	u8 *wfd_ie;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(net);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);	
 
@@ -6186,8 +6061,8 @@ static struct cfg80211_ops rtw_cfg80211_ops = {
 	#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 6, 0))
 	.set_channel = cfg80211_rtw_set_channel,
 	#endif
-	//.auth = cfg80211_rtw_auth,
-	//.assoc = cfg80211_rtw_assoc,	
+	.auth = cfg80211_rtw_auth,
+	.assoc = cfg80211_rtw_assoc,	
 #endif //CONFIG_AP_MODE
 
 #ifdef CONFIG_P2P

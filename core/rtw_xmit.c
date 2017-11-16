@@ -29,6 +29,10 @@
 static u8 P802_1H_OUI[P80211_OUI_LEN] = { 0x00, 0x00, 0xf8 };
 static u8 RFC1042_OUI[P80211_OUI_LEN] = { 0x00, 0x00, 0x00 };
 
+static s32 update_attrib_sec_info(_adapter *padapter, struct pkt_attrib *pattrib, struct sta_info *psta);
+static void update_attrib_phy_info(_adapter *padapter, struct pkt_attrib *pattrib, struct sta_info *psta);
+static void do_queue_select(_adapter * padapter, struct pkt_attrib * pattrib);
+
 static void _init_txservq(struct tx_servq *ptxservq)
 {
 _func_enter_;
@@ -972,7 +976,6 @@ static s32 update_attrib(_adapter *padapter, _pkt *pkt, struct pkt_attrib *pattr
 
 	sint bmcast;
 	struct sta_priv		*pstapriv = &padapter->stapriv;
-	struct security_priv	*psecuritypriv = &padapter->securitypriv;
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	struct qos_priv		*pqospriv= &pmlmepriv->qospriv;
 	sint res = _SUCCESS;
@@ -1195,37 +1198,12 @@ static s32 xmitframe_addmic(_adapter *padapter, struct xmit_frame *pxmitframe){
 	u8	*pframe, *payload,mic[8];
 	struct	mic_data		micdata;
 	//struct	sta_info		*stainfo;
-	struct	qos_priv   *pqospriv= &(padapter->mlmepriv.qospriv);	
 	struct	pkt_attrib	 *pattrib = &pxmitframe->attrib;
 	struct 	security_priv	*psecuritypriv=&padapter->securitypriv;
 	struct	xmit_priv		*pxmitpriv=&padapter->xmitpriv;
 	u8 priority[4]={0x0,0x0,0x0,0x0};
 	u8 hw_hdr_offset = 0;
 	sint bmcst = IS_MCAST(pattrib->ra);
-
-/*
-	if(pattrib->psta)
-	{
-		stainfo = pattrib->psta;
-	}
-	else
-	{
-		DBG_871X("%s, call rtw_get_stainfo()\n", __func__);
-		stainfo=rtw_get_stainfo(&padapter->stapriv ,&pattrib->ra[0]);
-	}	
-	
-	if(stainfo==NULL)
-	{
-		DBG_871X("%s, psta==NUL\n", __func__);
-		return _FAIL;
-	}
-
-	if(!(stainfo->state &_FW_LINKED))
-	{
-		DBG_871X("%s, psta->state(0x%x) != _FW_LINKED\n", __func__, stainfo->state);
-		return _FAIL;
-	}
-*/
 
 _func_enter_;
 
@@ -2583,8 +2561,6 @@ _func_enter_;
 		DBG_871X("%s fail, no xmitbuf available !!!\n", __func__);
 	}
 
-exit:
-
 _func_exit_;
 
 	return pxmitbuf;
@@ -3124,10 +3100,7 @@ struct xmit_frame* rtw_dequeue_xframe(struct xmit_priv *pxmitpriv, struct hw_xmi
 	struct xmit_frame *pxmitframe = NULL;
 	_adapter *padapter = pxmitpriv->adapter;
 	struct registry_priv	*pregpriv = &padapter->registrypriv;
-	int i, inx[4];
-#ifdef CONFIG_USB_HCI
-//	int j, tmp, acirp_cnt[4];
-#endif
+	int i = 0, j = 0, inx[4];
 
 _func_enter_;
 
@@ -3135,16 +3108,6 @@ _func_enter_;
 
 	if(pregpriv->wifi_spec==1)
 	{
-		int j, tmp, acirp_cnt[4];
-#if 0
-		if(flags<XMIT_QUEUE_ENTRY)
-		{
-			//priority exchange according to the completed xmitbuf flags.
-			inx[flags] = 0;
-			inx[0] = flags;
-		}
-#endif	
-	
 #if defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI) || defined(CONFIG_PCI_HCI)
 		for(j=0; j<4; j++)
 			inx[j] = pxmitpriv->wmm_para_seq[j];
@@ -3320,22 +3283,12 @@ s32 rtw_xmit_classifier(_adapter *padapter, struct xmit_frame *pxmitframe)
 	struct sta_info	*psta;
 	struct tx_servq	*ptxservq;
 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
-	struct sta_priv	*pstapriv = &padapter->stapriv;
 	struct hw_xmit	*phwxmits =  padapter->xmitpriv.hwxmits;
 	sint res = _SUCCESS;
 
 _func_enter_;
 
 	DBG_COUNTER(padapter->tx_logs.core_tx_enqueue_class);
-
-/*
-	if (pattrib->psta) {
-		psta = pattrib->psta;		
-	} else {
-		DBG_871X("%s, call rtw_get_stainfo()\n", __func__);
-		psta = rtw_get_stainfo(pstapriv, pattrib->ra);
-	}
-*/	
 
 	psta = rtw_get_stainfo(&padapter->stapriv, pattrib->ra);
 	if(pattrib->psta != psta)
@@ -4294,8 +4247,7 @@ void xmit_delivery_enabled_frames(_adapter *padapter, struct sta_info *psta)
 #ifdef CONFIG_TDLS
 			if(psta->tdls_sta_state & TDLS_LINKED_STATE )
 			{
-				//_exit_critical_bh(&psta->sleep_q.lock, &irqL);
-				goto exit;
+				_exit_critical_bh(&pxmitpriv->lock, &irqL);
 			}
 #endif //CONFIG_TDLS
 			pstapriv->tim_bitmap &= ~BIT(psta->aid);
@@ -4308,12 +4260,6 @@ void xmit_delivery_enabled_frames(_adapter *padapter, struct sta_info *psta)
 		}
 	
 	}	
-
-exit:
-	//_exit_critical_bh(&psta->sleep_q.lock, &irqL);	
-	_exit_critical_bh(&pxmitpriv->lock, &irqL);
-
-	return;
 }
 
 #endif

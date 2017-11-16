@@ -163,7 +163,6 @@ _func_exit_;
 u8 rtl8812_set_rssi_cmd(_adapter*padapter, u8 *param)
 {
 	u8	res=_SUCCESS;
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 _func_enter_;
 
 	*((u32*) param ) = cpu_to_le32( *((u32*) param ) );
@@ -587,7 +586,6 @@ void ConstructPSPoll(_adapter *padapter, u8 *pframe, u32 *pLength)
 {
 	struct rtw_ieee80211_hdr	*pwlanhdr;
 	u16					*fctrl;
-	u32					pktlen;
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 
@@ -849,7 +847,6 @@ CheckFwRsvdPageContent(
 )
 {
 	HAL_DATA_TYPE*	pHalData = GET_HAL_DATA(Adapter);
-	u32	MaxBcnPageNum;
 
  	if(pHalData->FwRsvdPageStartOffset != 0)
  	{
@@ -872,7 +869,6 @@ GetTxBufferRsvdPageNum8812(
 	IN	BOOLEAN		bWoWLANBoundary
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u8	RsvdPageNum=0;
 	u8	TxPageBndy= LAST_ENTRY_OF_TX_PKT_BUFFER_8812; // default reseved 1 page for the IC type which is undefined.
 
@@ -1250,7 +1246,6 @@ _func_exit_;
 void rtl8812_set_p2p_ps_offload_cmd(_adapter* padapter, u8 p2p_ps_state)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	struct pwrctrl_priv		*pwrpriv = adapter_to_pwrctl(padapter);
 	struct wifidirect_info	*pwdinfo = &( padapter->wdinfo );
 	u8	*p2p_ps_offload = (u8 *)&pHalData->p2p_ps_offload;
 	u8	i;
@@ -1389,7 +1384,7 @@ int reset_tsf(PADAPTER Adapter, u8 reset_port )
 
 
 #endif	// CONFIG_TSF_RESET_OFFLOAD
-
+#if 0
 static void rtl8812_set_FwRsvdPage_cmd(PADAPTER padapter, PRSVDPAGE_LOC rsvdpageloc)
 {
 	u8 u1H2CRsvdPageParm[H2C_RSVDPAGE_LOC_LEN]={0};
@@ -1408,6 +1403,7 @@ static void rtl8812_set_FwRsvdPage_cmd(PADAPTER padapter, PRSVDPAGE_LOC rsvdpage
 	RT_PRINT_DATA(_module_hal_init_c_, _drv_always_, "u1H2CRsvdPageParm:", u1H2CRsvdPageParm, H2C_RSVDPAGE_LOC_LEN);
 	FillH2CCmd_8812(padapter, H2C_RSVD_PAGE, H2C_RSVDPAGE_LOC_LEN, u1H2CRsvdPageParm);
 }
+#endif
 
 #ifdef CONFIG_WOWLAN
 #ifdef CONFIG_PNO_SUPPORT
@@ -1452,7 +1448,6 @@ static void rtl8812_set_FwScanOffloadInfo_cmd(PADAPTER padapter, PRSVDPAGE_LOC r
 	}
 }
 #endif //CONFIG_PNO_SUPPORT
-
 
 #ifdef CONFIG_AP_WOWLAN
 static void rtl8812_set_ap_wow_rsvdpage_cmd(PADAPTER padapter,
@@ -2282,7 +2277,7 @@ static void rtl8812_set_FwRsvdPagePkt(PADAPTER padapter, BOOLEAN bDLFinished)
 
 	DBG_871X("%s: Set RSVD page location to Fw ,TotalPacketLen(%d), TotalPageNum(%d)\n", __FUNCTION__,TotalPacketLen,TotalPageNum);
 	if(check_fwstate(pmlmepriv, _FW_LINKED)) {
-		rtl8812_set_FwRsvdPage_cmd(padapter, &RsvdPageLoc);
+		//rtl8812_set_FwRsvdPage_cmd(padapter, &RsvdPageLoc);
 		rtl8812_set_FwAoacRsvdPage_cmd(padapter, &RsvdPageLoc);
 	} else {
 #ifdef CONFIG_PNO_SUPPORT
@@ -2713,10 +2708,6 @@ C2HRaReportHandler_8812(
 )
 {
 	u8 	Rate = CmdBuf[0] & 0x3F;
-	u8	MacId = CmdBuf[1];
-	BOOLEAN	bLDPC = CmdBuf[2] & BIT0;
-	BOOLEAN	bTxBF = (CmdBuf[2] & BIT1) >> 1;
-	BOOLEAN	bNoisyStateFromC2H = (CmdBuf[2] & BIT2) >> 2;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
 	//pHalData->CurrentRARate = MRateToHwRate(Rate);
@@ -2733,8 +2724,6 @@ _C2HContentParsing8812(
 	IN	u8 			*tmpBuf
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	PDM_ODM_T		pDM_Odm = &pHalData->odmpriv;
 	s32 ret = _SUCCESS;
 
 	switch(c2hCmdId)
@@ -2806,7 +2795,6 @@ C2HPacketHandler_8812(
 	IN	u8			Length
 	)
 {
-	struct c2h_evt_hdr_88xx *c2h_evt = (struct c2h_evt_hdr_88xx *)Buffer;
 	u8	c2hCmdId=0, c2hCmdSeq=0, c2hCmdLen=0;
 	u8	*tmpBuf=NULL;
 
@@ -2840,5 +2828,3 @@ C2HPacketHandler_8812(
 		_C2HContentParsing8812(Adapter, c2hCmdId, c2hCmdLen, tmpBuf);
 	}
 }
-
-

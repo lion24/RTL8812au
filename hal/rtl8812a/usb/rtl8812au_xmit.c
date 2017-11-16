@@ -24,7 +24,6 @@
 
 s32 rtl8812au_init_xmit_priv(_adapter *padapter) {
   struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
-  HAL_DATA_TYPE *pHalData = GET_HAL_DATA(padapter);
 
 #ifdef PLATFORM_LINUX
   tasklet_init(&pxmitpriv->xmit_tasklet,
@@ -43,10 +42,8 @@ void rtl8812au_free_xmit_priv(_adapter *padapter) {}
 static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz,
                          u8 bagg_pkt) {
   int pull = 0;
-  uint qsel;
-  u8 data_rate, pwr_status, offset;
+  u8 offset;
   _adapter *padapter = pxmitframe->padapter;
-  struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
   struct pkt_attrib *pattrib = &pxmitframe->attrib;
   HAL_DATA_TYPE *pHalData = GET_HAL_DATA(padapter);
   struct dm_priv *pdmpriv = &pHalData->dmpriv;

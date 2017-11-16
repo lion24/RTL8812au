@@ -488,7 +488,6 @@ _func_exit_;
 
 void rtw_free_cmd_obj(struct cmd_obj *pcmd)
 {
-	struct drvextra_cmd_parm *extra_parm = NULL;
 _func_enter_;
 
 	if(pcmd->parmbuf != NULL){
@@ -867,11 +866,6 @@ u8 rtw_sitesurvey_cmd(_adapter  *padapter, NDIS_802_11_SSID *ssid, int ssid_num,
 	struct sitesurvey_parm	*psurveyPara;
 	struct cmd_priv 	*pcmdpriv = &padapter->cmdpriv;
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
-#ifdef CONFIG_P2P
-	struct wifidirect_info *pwdinfo= &(padapter->wdinfo);
-#endif //CONFIG_P2P
-
-_func_enter_;
 
 #ifdef CONFIG_LPS
 	if(check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE){
@@ -952,8 +946,6 @@ _func_enter_;
 	} else {
 		_clr_fwstate_(pmlmepriv, _FW_UNDER_SURVEY);
 	}
-
-_func_exit_;		
 
 	return res;
 }
@@ -1753,8 +1745,6 @@ u8 rtw_clearstakey_cmd(_adapter *padapter, struct sta_info *sta, u8 enqueue)
 	struct set_stakey_parm	*psetstakey_para;
 	struct cmd_priv 			*pcmdpriv=&padapter->cmdpriv;
 	struct set_stakey_rsp		*psetstakey_rsp = NULL;	
-	struct mlme_priv			*pmlmepriv = &padapter->mlmepriv;
-	struct security_priv 		*psecuritypriv = &padapter->securitypriv;
 	s16 cam_id = 0;
 	u8	res=_SUCCESS;
 
@@ -2255,7 +2245,6 @@ u8 rtw_set_csa_cmd(_adapter*padapter, u8 new_ch_no)
 {
 	struct	cmd_obj*	pcmdobj;
 	struct	SetChannelSwitch_param*setChannelSwitch_param;
-	struct 	mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct	cmd_priv   *pcmdpriv = &padapter->cmdpriv;
 
 	u8	res=_SUCCESS;
@@ -2289,32 +2278,26 @@ _func_exit_;
 	return res;
 }
 
+#ifdef CONFIG_TDLS
 u8 rtw_tdls_cmd(_adapter *padapter, u8 *addr, u8 option)
 {
 	struct	cmd_obj*	pcmdobj;
 	struct	TDLSoption_param	*TDLSoption;
-	struct 	mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct	cmd_priv   *pcmdpriv = &padapter->cmdpriv;
 
 	u8	res=_SUCCESS;
-
-_func_enter_;
-
-#ifdef CONFIG_TDLS
 
 	RT_TRACE(_module_rtl871x_cmd_c_, _drv_notice_, ("+rtw_set_tdls_cmd\n"));
 
 	pcmdobj = (struct	cmd_obj*)rtw_zmalloc(sizeof(struct	cmd_obj));
 	if(pcmdobj == NULL){
-		res=_FAIL;
-		goto exit;
+		return _FAIL;
 	}
 
 	TDLSoption= (struct TDLSoption_param *)rtw_zmalloc(sizeof(struct TDLSoption_param));
 	if(TDLSoption == NULL) {
 		rtw_mfree((u8 *)pcmdobj, sizeof(struct cmd_obj));
-		res= _FAIL;
-		goto exit;
+		return _FAIL;
 	}
 
 	_rtw_spinlock(&(padapter->tdlsinfo.cmd_lock));
@@ -2323,16 +2306,8 @@ _func_enter_;
 	_rtw_spinunlock(&(padapter->tdlsinfo.cmd_lock));
 	init_h2fwcmd_w_parm_no_rsp(pcmdobj, TDLSoption, GEN_CMD_CODE(_TDLS));
 	res = rtw_enqueue_cmd(pcmdpriv, pcmdobj);
-
-#endif	//CONFIG_TDLS
-	
-exit:
-
-
-_func_exit_;	
-
-	return res;
 }
+#endif	//CONFIG_TDLS
 
 static void collect_traffic_statistics(_adapter *padapter)
 {

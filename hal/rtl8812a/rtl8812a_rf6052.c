@@ -42,8 +42,6 @@ PHY_RF6052SetBandwidth8812(
 	IN	PADAPTER				Adapter,
 	IN	CHANNEL_WIDTH		Bandwidth)	//20M or 40M
 {	
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	
 	switch(Bandwidth)
 	{
 		case CHANNEL_WIDTH_20:
@@ -187,4 +185,3 @@ PHY_RF6052_Config_8812(
 
 
 /* End of HalRf6052.c */
-

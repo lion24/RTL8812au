@@ -36,34 +36,6 @@
 // Global var
 //============================================================
 
-
-static VOID
-dm_CheckProtection(
-	IN	PADAPTER	Adapter
-	)
-{
-#if 0
-	PMGNT_INFO		pMgntInfo = &(Adapter->MgntInfo);
-	u1Byte			CurRate, RateThreshold;
-
-	if(pMgntInfo->pHTInfo->bCurBW40MHz)
-		RateThreshold = MGN_MCS1;
-	else
-		RateThreshold = MGN_MCS3;
-
-	if(Adapter->TxStats.CurrentInitTxRate <= RateThreshold)
-	{
-		pMgntInfo->bDmDisableProtect = TRUE;
-		DbgPrint("Forced disable protect: %x\n", Adapter->TxStats.CurrentInitTxRate);
-	}
-	else
-	{
-		pMgntInfo->bDmDisableProtect = FALSE;
-		DbgPrint("Enable protect: %x\n", Adapter->TxStats.CurrentInitTxRate);
-	}
-#endif
-}
-
 static VOID
 dm_CheckStatistics(
 	IN	PADAPTER	Adapter
@@ -248,8 +220,6 @@ dm_InitGPIOSetting(
 	IN	PADAPTER	Adapter
 	)
 {
-	PHAL_DATA_TYPE		pHalData = GET_HAL_DATA(Adapter);
-
 	u8	tmp1byte;
 
 	tmp1byte = rtw_read8(Adapter, REG_GPIO_MUXCFG);
@@ -360,7 +330,6 @@ rtl8812_InitHalDm(
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
 	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
-	u8	i;
 
 #ifdef CONFIG_USB_HCI
 	dm_InitGPIOSetting(Adapter);
@@ -386,8 +355,6 @@ rtl8812_HalDmWatchDog(
 	BOOLEAN		bFwPSAwake = _TRUE;
 	u8 hw_init_completed = _FALSE;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
-	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
-	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
 #ifdef CONFIG_CONCURRENT_MODE
 	PADAPTER pbuddy_adapter = Adapter->pbuddy_adapter;
 #endif //CONFIG_CONCURRENT_MODE
@@ -512,9 +479,7 @@ void rtl8812_init_dm_priv(IN PADAPTER Adapter)
 void rtl8812_deinit_dm_priv(IN PADAPTER Adapter)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
-	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
 	PDM_ODM_T 		podmpriv = &pHalData->odmpriv;
-	//_rtw_spinlock_free(&pHalData->odm_stainfo_lock);
 	ODM_CancelAllTimers(podmpriv);	
 }
 
@@ -581,4 +546,3 @@ u8 AntDivBeforeLink8812(PADAPTER Adapter )
 
 }
 #endif
-

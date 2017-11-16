@@ -675,7 +675,6 @@ SwLedBlink4(
 {
 	_adapter			*padapter = pLed->padapter;
 	struct led_priv	*ledpriv = &(padapter->ledpriv);
-	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
 	PLED_USB 		pLed1 = &(ledpriv->SwLed1);
 	u8				bStopBlinking = _FALSE;
 
@@ -937,7 +936,6 @@ SwLedBlink5(
 	)
 {
 	_adapter			*padapter = pLed->padapter;
-	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
 	u8				bStopBlinking = _FALSE;
 
 	// Change LED according to BlinkingLedState specified.
@@ -1055,8 +1053,6 @@ SwLedBlink6(
 	)
 {
 	_adapter			*padapter = pLed->padapter;
-	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
-	u8				bStopBlinking = _FALSE;
 
 	// Change LED according to BlinkingLedState specified.
 	if( pLed->BlinkingLedState == RTW_LED_ON )
@@ -1905,7 +1901,6 @@ SwLedBlink12(
 	)
 {
 	PADAPTER Adapter = pLed->padapter;
-	struct mlme_priv	*pmlmepriv = &(Adapter->mlmepriv);
 	BOOLEAN bStopBlinking = _FALSE;
 
 	// Change LED according to BlinkingLedState specified.
@@ -1991,8 +1986,6 @@ SwLedBlink13(
 	)
 {
 	PADAPTER Adapter = pLed->padapter;
-	struct mlme_priv	*pmlmepriv = &(Adapter->mlmepriv);
-	BOOLEAN bStopBlinking = _FALSE;
 	static u8	LinkBlinkCnt=0;
 
 	// Change LED according to BlinkingLedState specified.
@@ -2067,7 +2060,6 @@ SwLedBlink14(
 	)
 {
 	PADAPTER Adapter = pLed->padapter;
-	struct mlme_priv	*pmlmepriv = &(Adapter->mlmepriv);
 	BOOLEAN bStopBlinking = _FALSE;
 	static u8	LinkBlinkCnt=0;
 
@@ -3642,7 +3634,6 @@ SwLedControlMode6(
 )
 {
 	struct led_priv	*ledpriv = &(padapter->ledpriv);
-	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	PLED_USB	pLed0 = &(ledpriv->SwLed0);
 
 	switch(LedAction)
@@ -3835,7 +3826,6 @@ SwLedControlMode8(
 	)
 {
 	struct led_priv	*ledpriv = &(Adapter->ledpriv);
-	struct mlme_priv	*pmlmepriv = &Adapter->mlmepriv;
 	PLED_USB	pLed0 = &(ledpriv->SwLed0);
 
 	switch(LedAction)
@@ -4443,7 +4433,6 @@ SwLedControlMode11(
 )
 {
 	struct led_priv	*ledpriv = &(Adapter->ledpriv);
-	struct mlme_priv	*pmlmepriv = &Adapter->mlmepriv;
 	PLED_USB	pLed = &(ledpriv->SwLed0);
 
 	switch(LedAction)
@@ -4552,7 +4541,6 @@ SwLedControlMode12(
 )
 {
 	struct led_priv	*ledpriv = &(Adapter->ledpriv);
-	struct mlme_priv	*pmlmepriv = &Adapter->mlmepriv;
 	PLED_USB	pLed = &(ledpriv->SwLed0);
 
 	switch(LedAction)
@@ -4642,7 +4630,6 @@ SwLedControlMode13(
 )
 {
 	struct led_priv	*ledpriv = &(Adapter->ledpriv);
-	struct mlme_priv	*pmlmepriv = &Adapter->mlmepriv;
 	PLED_USB	pLed = &(ledpriv->SwLed0);
 
 	RT_TRACE(_module_rtl8712_led_c_,_drv_info_,("Led control mode 13 CurrLedState %d, LedAction %d\n", pLed->CurrLedState,LedAction));
@@ -5222,5 +5209,3 @@ DeInitLed(
 	_cancel_timer_ex(&(pLed->BlinkTimer));
 	ResetLedStatus(pLed);
 }
-
-

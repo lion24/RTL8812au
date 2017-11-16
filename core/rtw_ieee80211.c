@@ -1403,10 +1403,6 @@ void dump_ht_cap_ie_content(void *sel, u8 *buf, u32 buf_len)
 
 void dump_ht_cap_ie(void *sel, u8 *ie, u32 ie_len)
 {
-	u8* pos = (u8*)ie;
-	u16 id;
-	u16 len;
-
 	u8 *ht_cap_ie;
 	sint ht_cap_ielen;
 
@@ -1478,8 +1474,7 @@ u32 rtw_get_p2p_merged_ies_len(u8 *in_ie, u32 in_len)
 {
 	PNDIS_802_11_VARIABLE_IEs	pIE;
 	u8 OUI[4] = { 0x50, 0x6f, 0x9a, 0x09 };
-	int i=0;
-	int j=0, len=0;
+	int i=0, len=0;
 
 	while( i < in_len)
 	{
@@ -1752,7 +1747,6 @@ static uint rtw_p2p_attr_remove(u8 *ie, uint ielen_ori, u8 attr_id)
 	u8 *target_attr;
 	u32 target_attr_len;
 	uint ielen = ielen_ori;
-	int index=0;
 
 	while(1) {
 		target_attr=rtw_get_p2p_attr(ie, ielen, attr_id, NULL, &target_attr_len);
@@ -1793,7 +1787,6 @@ void rtw_WLAN_BSSID_EX_remove_p2p_attr(WLAN_BSSID_EX *bss_ex, u8 attr_id)
 {
 	u8 *p2p_ie;
 	uint p2p_ielen, p2p_ielen_ori;
-	int cnt;
 	
 	if( (p2p_ie=rtw_get_p2p_ie(bss_ex->IEs+_FIXED_IE_LENGTH_, bss_ex->IELength-_FIXED_IE_LENGTH_, NULL, &p2p_ielen_ori)) ) 
 	{
@@ -1830,8 +1823,6 @@ void dump_wfd_ie(void *sel, u8 *ie, u32 ie_len)
 	u8* pos = (u8*)ie;
 	u8 id;
 	u16 len;
-
-	u8 *wfd_ie;
 	uint wfd_ielen;
 
 	if(rtw_get_wfd_ie(ie, ie_len, NULL, &wfd_ielen) == _FALSE)

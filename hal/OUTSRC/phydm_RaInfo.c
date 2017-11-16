@@ -388,12 +388,12 @@ odm_RSSIMonitorCheckMP(
 //
 //sherry move from DUSC to here 20110517
 //
+#if 0
 static VOID
 FindMinimumRSSI_Dmsp(
 	IN	PADAPTER	pAdapter
 )
 {
-#if 0
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
 	s32	Rssi_val_min_back_for_mac0;
@@ -429,8 +429,8 @@ FindMinimumRSSI_Dmsp(
 		bRestoreRssi = _FALSE;
 		pdmpriv->MinUndecoratedPWDBForDM = Rssi_val_min_back_for_mac0;
 	}
-#endif
 }
+#endif
 
 static void
 FindMinimumRSSI(

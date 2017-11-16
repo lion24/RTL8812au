@@ -275,8 +275,6 @@ void rtw_os_xmit_complete(_adapter *padapter, struct xmit_frame *pxframe)
 
 void rtw_os_xmit_schedule(_adapter *padapter)
 {
-	_adapter *pri_adapter = padapter;
-
 #if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
 	if(!padapter)
 		return;
@@ -313,7 +311,6 @@ void rtw_os_xmit_schedule(_adapter *padapter)
 static bool rtw_check_xmit_resource(_adapter *padapter, _pkt *pkt)
 {
 	bool busy = _FALSE;
-	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
 #if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,35))
 	u16	qidx;
 
@@ -452,9 +449,6 @@ int _rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev)
 	extern int rtw_mc2u_disable;
 #endif	// CONFIG_TX_MCAST2UNI	
 	s32 res = 0;
-#if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,35))
-	u16 queue;
-#endif
 
 _func_enter_;
 

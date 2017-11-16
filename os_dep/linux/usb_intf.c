@@ -456,7 +456,6 @@ static u8 rtw_deinit_intf_priv(struct dvobj_priv *dvobj)
 static struct dvobj_priv *usb_dvobj_init(struct usb_interface *usb_intf)
 {
 	int	i;
-	u8	val8;
 	int	status = _FAIL;
 	struct dvobj_priv *pdvobjpriv;
 	struct usb_device_descriptor 	*pdev_desc;
@@ -1023,7 +1022,7 @@ exit:
 
 int rtw_resume_process(_adapter *padapter)
 {
-	int ret,pm_cnt = 0;
+	int ret;
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
 	struct dvobj_priv *pdvobj = padapter->dvobj;
 	struct debug_priv *pdbgpriv = &pdvobj->drv_dbg;
@@ -1438,13 +1437,6 @@ _adapter *rtw_usb_if1_init(struct dvobj_priv *dvobj,
 free_hal_data:
 	if(status != _SUCCESS && padapter->HalData)
 		rtw_mfree(padapter->HalData, sizeof(*(padapter->HalData)));
-free_wdev:
-	if(status != _SUCCESS) {
-		#ifdef CONFIG_IOCTL_CFG80211
-		rtw_wdev_unregister(padapter->rtw_wdev);
-		rtw_wdev_free(padapter->rtw_wdev);
-		#endif
-	}
 handle_dualmac:
 	if (status != _SUCCESS)
 		rtw_handle_dualmac(padapter, 0);
@@ -1462,7 +1454,6 @@ exit:
 
 static void rtw_usb_if1_deinit(_adapter *if1)
 {
-	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(if1);
 	struct net_device *pnetdev = if1->pnetdev;
 	struct mlme_priv *pmlmepriv= &if1->mlmepriv;
 
@@ -1548,7 +1539,8 @@ static int rtw_drv_init(struct usb_interface *pusb_intf, const struct usb_device
 
 #ifdef CONFIG_CONCURRENT_MODE
 	if((if2 = rtw_drv_if2_init(if1, usb_set_intf_ops)) == NULL) {
-		goto free_if1;
+		if (status != _SUCCESS && if1)
+			rtw_usb_if1_deinit(if1);
 	}
 #ifdef CONFIG_MULTI_VIR_IFACES
 	for(i=0; i<if1->registrypriv.ext_iface_num;i++)
@@ -1598,10 +1590,6 @@ free_if2:
 		rtw_drv_if2_free(if2);
 		#endif
 	}
-free_if1:
-	if (status != _SUCCESS && if1) {
-		rtw_usb_if1_deinit(if1);
-	}
 free_dvobj:
 	if (status != _SUCCESS)
 		usb_dvobj_deinit(pusb_intf);
@@ -1616,10 +1604,7 @@ exit:
 static void rtw_dev_remove(struct usb_interface *pusb_intf)
 {
 	struct dvobj_priv *dvobj = usb_get_intfdata(pusb_intf);
-	struct pwrctrl_priv *pwrctl = dvobj_to_pwrctl(dvobj);
 	_adapter *padapter = dvobj->if1;
-	struct net_device *pnetdev = padapter->pnetdev;
-	struct mlme_priv *pmlmepriv= &padapter->mlmepriv;
 
 _func_enter_;
 

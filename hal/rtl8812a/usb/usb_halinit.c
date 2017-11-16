@@ -28,7 +28,7 @@
 
 #endif
 
-
+#if 0
 static void _dbg_dump_macreg(_adapter *padapter)
 {
 	u32 offset = 0;
@@ -41,6 +41,7 @@ static void _dbg_dump_macreg(_adapter *padapter)
 		DBG_8192C("offset : 0x%02x ,val:0x%08x\n",offset,val32);
 	}
 }
+#endif
 
 static VOID
 _ConfigChipOutEP_8812(
@@ -978,7 +979,6 @@ usb_AggSettingRxUpdate_8812A(
 #ifdef CONFIG_USB_RX_AGGREGATION
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u8			valueDMA;
-	u8			valueUSB;
 
 	valueDMA = rtw_read8(Adapter, REG_TRXDMA_CTRL);
 	switch(pHalData->UsbRxAggMode)
@@ -1213,25 +1213,11 @@ _InitOperationMode_8812A(
 #endif
 }
 
-
-// Set CCK and OFDM Block "ON"
-static VOID _BBTurnOnBlock(
-	IN	PADAPTER		Adapter
-	)
-{
-#if (DISABLE_BB_RF)
-	return;
-#endif
-
-	PHY_SetBBReg(Adapter, rFPGA0_RFMOD, bCCKEn, 0x1);
-	PHY_SetBBReg(Adapter, rFPGA0_RFMOD, bOFDMEn, 0x1);
-}
-
+#if 0
 static VOID _RfPowerSave(
 	IN	PADAPTER		Adapter
 	)
 {
-#if 0
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(Adapter);
 	PMGNT_INFO		pMgntInfo	= &(Adapter->MgntInfo);
 	u1Byte			eRFPath;
@@ -1258,8 +1244,8 @@ static VOID _RfPowerSave(
 			PlatformUsbEnableInPipes(Adapter);
 		RT_TRACE((COMP_INIT|COMP_RF), DBG_LOUD, ("InitializeAdapter8192CUsb(): RF is on.\n"));
 	}
-#endif
 }
+#endif
 
 enum {
 	Antenna_Lfet = 1,
@@ -1294,12 +1280,12 @@ _InitAntenna_Selection_8812A(IN	PADAPTER Adapter)
 // If Efuse 0x0e bit1 is not enabled, we can not support selective suspend for Minicard and
 // slim card.
 //
+#if 0
 static VOID
 HalDetectSelectiveSuspendMode(
 	IN PADAPTER				Adapter
 	)
 {
-#if 0
 	u8	tmpvalue;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(Adapter);
@@ -1331,12 +1317,11 @@ HalDetectSelectiveSuspendMode(
 			pdvobjpriv->RegUsbSS = _FALSE;
 		//}
 	}
-#endif
 }	// HalDetectSelectiveSuspendMode
+#endif
 
 rt_rf_power_state RfOnOffDetect(IN	PADAPTER pAdapter )
 {
-	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(pAdapter);
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(pAdapter);
 	u8	val8;
 	rt_rf_power_state rfpowerstate = rf_off;
@@ -1414,17 +1399,15 @@ static void rtl8812au_hw_reset(_adapter *Adapter)
 u32 rtl8812au_hal_init(PADAPTER Adapter)
 {
 	u8	value8 = 0, u1bRegCR;
-	u16  value16;
 	u8	txpktbuf_bndy;
 	u32	status = _SUCCESS;
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
 	struct pwrctrl_priv		*pwrctrlpriv = adapter_to_pwrctl(Adapter);
 	struct registry_priv	*pregistrypriv = &Adapter->registrypriv;
 	
-	rt_rf_power_state		eRfPowerStateToSet;
+	//rt_rf_power_state		eRfPowerStateToSet;
 
 	u32 init_start_time = rtw_get_current_time();
-
 
 #ifdef DBG_HAL_INIT_PROFILING
 
@@ -2120,7 +2103,6 @@ unsigned int rtl8812au_inirp_init(PADAPTER Adapter)
 	u8 i;	
 	struct recv_buf *precvbuf;
 	uint	status;
-	struct dvobj_priv *pdev= adapter_to_dvobj(Adapter);
 	struct intf_hdl * pintfhdl=&Adapter->iopriv.intf;
 	struct recv_priv *precvpriv = &(Adapter->recvpriv);	
 	u32 (*_read_port)(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *pmem);
@@ -2302,7 +2284,6 @@ hal_InitPGData_8812A(
 	EEPROM_EFUSE_PRIV *pEEPROM = GET_EEPROM_EFUSE_PRIV(padapter);
 //	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	u32			i;
-	u16			value16;
 
 	if(_FALSE == pEEPROM->bautoload_fail_flag)
 	{ // autoload OK.
@@ -2647,8 +2628,6 @@ ReadAdapterInfo8812AU(
 	IN PADAPTER			Adapter
 	)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	
 	DBG_871X("====> ReadAdapterInfo8812AU\n");
 
 	// Read all content in Efuse/EEPROM.
@@ -2690,9 +2669,6 @@ void UpdateInterruptMask8812AU(PADAPTER padapter,u8 bHIMR0 ,u32 AddMSR, u32 Remo
 
 void SetHwReg8812AU(PADAPTER Adapter, u8 variable, u8* val)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
-	DM_ODM_T 		*podmpriv = &pHalData->odmpriv;
 #if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
 	struct wowlan_ioctl_param *poidparam;
 	struct recv_buf *precvbuf;
@@ -3002,8 +2978,6 @@ _func_exit_;
 
 void GetHwReg8812AU(PADAPTER Adapter, u8 variable, u8* val)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	DM_ODM_T 		*podmpriv = &pHalData->odmpriv;
 _func_enter_;
 
 	switch(variable)
@@ -3027,7 +3001,6 @@ SetHalDefVar8812AUsb(
 	IN	PVOID					pValue
 	)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u8			bResult = _SUCCESS;
 
 	switch(eVariable)
@@ -3051,7 +3024,6 @@ GetHalDefVar8812AUsb(
 	IN	PVOID					pValue
 	)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	u8			bResult = _SUCCESS;
 
 	switch(eVariable)

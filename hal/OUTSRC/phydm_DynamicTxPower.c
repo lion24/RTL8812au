@@ -236,13 +236,12 @@ odm_DynamicTxPowerAP(
 
 	)
 {	
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP)
+	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 
 //#if ((RTL8192C_SUPPORT==1) || (RTL8192D_SUPPORT==1) || (RTL8188E_SUPPORT==1) || (RTL8812E_SUPPORT==1))
 
 
-	prtl8192cd_priv	priv		= pDM_Odm->priv;
 	s4Byte i;
 	s2Byte pwr_thd = TX_POWER_NEAR_FIELD_THRESH_AP;
 
@@ -250,6 +249,7 @@ odm_DynamicTxPowerAP(
 		return;
 	
 #if ((RTL8812E_SUPPORT==1) || (RTL8881A_SUPPORT==1))
+	prtl8192cd_priv	priv		= pDM_Odm->priv;
 	if (pDM_Odm->SupportICType & (ODM_RTL8812 | ODM_RTL8881A))
 		pwr_thd = TX_POWER_NEAR_FIELD_THRESH_8812;
 #endif
@@ -306,7 +306,6 @@ odm_DynamicTxPower_92C(
 	IN		PVOID					pDM_VOID
 	)
 {
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	PADAPTER Adapter = pDM_Odm->Adapter;
 	PMGNT_INFO			pMgntInfo = &Adapter->MgntInfo;
@@ -556,8 +555,8 @@ odm_DynamicTxPower_92D(
 	IN		PVOID					pDM_VOID
 	)
 {
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	PADAPTER Adapter = pDM_Odm->Adapter;
 	PMGNT_INFO			pMgntInfo = &Adapter->MgntInfo;
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);

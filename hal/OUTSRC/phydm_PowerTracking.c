@@ -595,8 +595,8 @@ odm_TXPowerTrackingCheckMP(
 	IN 	PVOID	 	pDM_VOID
 	)
 {
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	PADAPTER	Adapter = pDM_Odm->Adapter;
 
 	if (ODM_CheckPowerStatus(Adapter) == FALSE) 
@@ -623,8 +623,8 @@ odm_TXPowerTrackingCheckAP(
 	IN 	PVOID	 	pDM_VOID
 	)
 {
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP)
+	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	prtl8192cd_priv	priv		= pDM_Odm->priv;
 
 	if ( (priv->pmib->dot11RFEntry.ther) && ((priv->up_time % priv->pshare->rf_ft_var.tpt_period) == 0)){

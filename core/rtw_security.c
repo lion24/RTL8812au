@@ -20,6 +20,7 @@
 #define _RTW_SECURITY_C_
 
 #include <drv_types.h>
+#include <rtw_debug.h>
 
 static const char *_security_type_str[] = {
     "N/A",    "WEP40", "TKIP",    "TKIP_WM", "AES",
@@ -987,10 +988,6 @@ static void next_key(u8 *key, sint round);
 static void byte_sub(u8 *in, u8 *out);
 static void shift_row(u8 *in, u8 *out);
 static void mix_column(u8 *in, u8 *out);
-#ifndef PLATFORM_FREEBSD
-static void add_round_key(u8 *shiftrow_in, u8 *mcol_in, u8 *block_in,
-                          sint round, u8 *out);
-#endif // PLATFORM_FREEBSD
 static void aes128k128d(u8 *key, u8 *data, u8 *ciphertext);
 
 /****************************************/
@@ -1875,7 +1872,6 @@ u32 rtw_aes_decrypt(_adapter *padapter, u8 *precvframe) { // exclude ICV
   /* Intermediate Buffers */
 
   sint length;
-  u32 prwskeylen;
   u8 *pframe, *prwskey; //, *payload,*iv
   struct sta_info *stainfo;
   struct rx_pkt_attrib *prxattrib =
@@ -2263,7 +2259,7 @@ static u8 os_strlen(const char *s) {
   return p - s;
 }
 
-static int os_memcmp(void *s1, void *s2, u8 n) {
+int os_memcmp(void *s1, void *s2, u8 n) {
   unsigned char *p1 = s1, *p2 = s2;
 
   if (n == 0)
@@ -2364,7 +2360,7 @@ static void hmac_sha256_vector(u8 *key, size_t key_len, size_t num_elem,
  * given key.
  */
 #ifndef PLATFORM_FREEBSD // Baron
-static void sha256_prf(u8 *key, size_t key_len, char *label, u8 *data,
+void sha256_prf(u8 *key, size_t key_len, char *label, u8 *data,
                        size_t data_len, u8 *buf, size_t buf_len) {
   u16 counter = 1;
   size_t pos, plen;

@@ -21,6 +21,14 @@
 
 #include <drv_types.h>
 
+static u8 rtw_rfc1042_header[] =
+{ 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00 };
+
+/* Bridge-Tunnel header (for EtherTypes ETH_P_AARP and ETH_P_IPX) */
+static u8 rtw_bridge_tunnel_header[] =
+{ 0xaa, 0xaa, 0x03, 0x00, 0x00, 0xf8 };
+
+
 int rtw_os_alloc_recvframe(_adapter *padapter, union recv_frame *precvframe, u8 *pdata, _pkt *pskb)
 {
 	int res = _SUCCESS;
@@ -172,9 +180,6 @@ int rtw_os_recvbuf_resource_alloc(_adapter *padapter, struct recv_buf *precvbuf)
 	int res=_SUCCESS;
 
 #ifdef CONFIG_USB_HCI
-	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(padapter);
-	struct usb_device	*pusbd = pdvobjpriv->pusbdev;
-
 	precvbuf->irp_pending = _FALSE;
 	precvbuf->purb = usb_alloc_urb(0, GFP_KERNEL);
 	if(precvbuf->purb == NULL){
@@ -539,7 +544,6 @@ int rtw_recv_indicatepkt(_adapter *padapter, union recv_frame *precv_frame)
 	struct recv_priv *precvpriv;
 	_queue	*pfree_recv_queue;
 	_pkt *skb;
-	struct mlme_priv*pmlmepriv = &padapter->mlmepriv;
 	struct rx_pkt_attrib *pattrib;
 	
 	if(NULL == precv_frame)
@@ -605,17 +609,6 @@ int rtw_recv_indicatepkt(_adapter *padapter, union recv_frame *precv_frame)
 #endif //CONFIG_AUTO_AP_MODE
 
 	rtw_os_recv_indicate_pkt(padapter, skb, pattrib);
-
-_recv_indicatepkt_end:
-
-	precv_frame->u.hdr.pkt = NULL; // pointers to NULL before rtw_free_recvframe()
-
-	rtw_free_recvframe(precv_frame, pfree_recv_queue);
-
-	RT_TRACE(_module_recv_osdep_c_,_drv_info_,("\n rtw_recv_indicatepkt :after rtw_os_recv_indicate_pkt!!!!\n"));
-
-
-        return _SUCCESS;
 
 _recv_indicatepkt_drop:
 

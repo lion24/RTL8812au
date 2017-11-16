@@ -775,8 +775,10 @@ u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 	s32	i, j, idx;
 	u8	ret = _SUCCESS;
 	u16	mapLen=0;
+#ifdef CONFIG_RTL8723B					
 	EEPROM_EFUSE_PRIV *pEEPROM = GET_EEPROM_EFUSE_PRIV(padapter);
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
+#endif
 
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, _FALSE);
 

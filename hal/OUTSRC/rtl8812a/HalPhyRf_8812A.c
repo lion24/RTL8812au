@@ -34,6 +34,9 @@
 //3 Tx Power Tracking
 //3============================================================
 
+static u1Byte DeltaSwingTableIdx_2GA_N_8188E[] = {0, 0, 0, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5,  6,  6,  7,  7,  7,  7,  8,  8,  9,  9, 10, 10, 10, 11, 11, 11, 11};
+
+static u1Byte DeltaSwingTableIdx_2GA_P_8188E[] = {0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4,  4,  4,  4,  4,  4,  5,  5,  7,  7,  8,  8,  8,  9,  9,  9,  9,  9};
 
 void DoIQK_8812A(
 	PDM_ODM_T	pDM_Odm,
@@ -44,7 +47,6 @@ void DoIQK_8812A(
 {
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
 	PADAPTER 		Adapter = pDM_Odm->Adapter;
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 #endif
 
 	ODM_ResetIQKResult(pDM_Odm);		
@@ -70,6 +72,7 @@ void DoIQK_8812A(
  *	04/23/2012	MHC		Create Version 0.  
  *
  *---------------------------------------------------------------------------*/
+
 VOID
 ODM_TxPwrTrackSetPwr8812A(
 	PDM_ODM_T			pDM_Odm,
@@ -87,7 +90,6 @@ ODM_TxPwrTrackSetPwr8812A(
 	u1Byte			TxRate = 0xFF;
 	u1Byte			Final_OFDM_Swing_Index = 0; 
 	u1Byte			Final_CCK_Swing_Index = 0; 
-	u1Byte			i = 0;
 
 	if (pDM_Odm->mp_mode == TRUE)
 	{
@@ -617,19 +619,19 @@ void _IQK_ConfigureMAC_8812A(
 
 #define cal_num 10
 
-void _IQK_Tx_8812A(
+VOID
+_IQK_Tx_8812A(
 	IN PDM_ODM_T		pDM_Odm,
 	IN u1Byte chnlIdx
 	)
 {
-	u1Byte 		delay_count, cal = 0;
+	u1Byte 		delay_count;
 	u1Byte		cal0_retry, cal1_retry, TX0_Average = 0, TX1_Average = 0, RX0_Average = 0, RX1_Average = 0;
 	int			TX_IQC_temp[10][4], TX_IQC[4]={};		//TX_IQC = [TX0_X, TX0_Y,TX1_X,TX1_Y]; for 3 times
 	int			RX_IQC_temp[10][4], RX_IQC[4]={};		//RX_IQC = [RX0_X, RX0_Y,RX1_X,RX1_Y]; for 3 times
 	BOOLEAN 	TX0_fail = TRUE, RX0_fail = TRUE, IQK0_ready = FALSE, TX0_finish = FALSE, RX0_finish = FALSE;
 	BOOLEAN  	TX1_fail = TRUE, RX1_fail = TRUE, IQK1_ready = FALSE, TX1_finish = FALSE, RX1_finish = FALSE, VDF_enable = FALSE;
 	int			i, ii, dx = 0, dy = 0;
-	PODM_RF_CAL_T  pRFCalibrateInfo = &(pDM_Odm->RFCalibrateInfo);
 	
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("BandWidth = %d, ExtPA5G = %d, ExtPA2G = %d\n", *pDM_Odm->pBandWidth, pDM_Odm->ExtPA5G, pDM_Odm->ExtPA));
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Interface = %d, RFE_Type = %d\n", pDM_Odm->SupportInterface, pDM_Odm->RFEType));
@@ -1343,7 +1345,6 @@ PHY_IQCalibrate_8812A(
 	IN	BOOLEAN 	bReCovery
 	)
 {
-	u4Byte			counter = 0;
 	u4Byte			StartTime; 
 	s4Byte			ProgressingTime;
 
@@ -1404,7 +1405,6 @@ PHY_LCCalibrate_8812A(
 	
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
 	PADAPTER 		pAdapter = pDM_Odm->Adapter;
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);	
 
 	#if (MP_DRIVER == 1)
 	#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
@@ -2153,8 +2153,3 @@ PHY_DPCalibrate_8812A(
 	phy_DPCalibrate_8812A(pDM_Odm);  
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== PHY_DPCalibrate_8812A\n"));
 }                                               
-                                   
-                                                          
-                                                          
-                                                          
-                                                          

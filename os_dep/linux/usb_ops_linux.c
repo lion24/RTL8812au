@@ -31,26 +31,18 @@ struct rtw_async_write_data {
 	u8 data[VENDOR_CMD_MAX_DATA_LEN];
 	struct usb_ctrlrequest dr;
 };
-	
+
 int usbctrl_vendorreq(struct intf_hdl *pintfhdl, u8 request, u16 value, u16 index, void *pdata, u16 len, u8 requesttype)
 {
 	_adapter	*padapter = pintfhdl->padapter;
 	struct dvobj_priv  *pdvobjpriv = adapter_to_dvobj(padapter);
-	struct pwrctrl_priv *pwrctl = dvobj_to_pwrctl(pdvobjpriv);
 	struct usb_device *udev=pdvobjpriv->pusbdev;
 
 	unsigned int pipe;
 	int status = 0;
-	u32 tmp_buflen=0;
 	u8 reqtype;
 	u8 *pIo_buf;
 	int vendorreq_times = 0;
-
-	#ifdef CONFIG_USB_VENDOR_REQ_BUFFER_DYNAMIC_ALLOCATE
-	u8 *tmp_buf;
-	#else // use stack memory
-	u8 tmp_buf[MAX_USB_IO_CTL_SIZE];
-	#endif
 
 #ifdef CONFIG_CONCURRENT_MODE
 	if(padapter->adapter_type > PRIMARY_ADAPTER)
@@ -79,25 +71,10 @@ int usbctrl_vendorreq(struct intf_hdl *pintfhdl, u8 request, u16 value, u16 inde
 	_enter_critical_mutex(&pdvobjpriv->usb_vendor_req_mutex, NULL);
 	#endif	
 
-	
 	// Acquire IO memory for vendorreq
-#ifdef CONFIG_USB_VENDOR_REQ_BUFFER_PREALLOC
-	pIo_buf = pdvobjpriv->usb_vendor_req_buf;
-#else
-	#ifdef CONFIG_USB_VENDOR_REQ_BUFFER_DYNAMIC_ALLOCATE
-	tmp_buf = rtw_malloc( (u32) len + ALIGNMENT_UNIT);
-	tmp_buflen =  (u32)len + ALIGNMENT_UNIT;
-	#else // use stack memory
-	tmp_buflen = MAX_USB_IO_CTL_SIZE;
-	#endif
-
-	// Added by Albert 2010/02/09
-	// For mstar platform, mstar suggests the address for USB IO should be 16 bytes alignment.
-	// Trying to fix it here.
-	pIo_buf = (tmp_buf==NULL)?NULL:tmp_buf + ALIGNMENT_UNIT -((SIZE_PTR)(tmp_buf) & 0x0f );	
-#endif
-
-	if ( pIo_buf== NULL) {
+	pIo_buf = kmalloc(MAX_USB_IO_CTL_SIZE, GFP_ATOMIC);
+	
+	if (!pIo_buf) {
 		DBG_8192C( "[%s] pIo_buf == NULL \n", __FUNCTION__ );
 		status = -ENOMEM;
 		goto release_mutex;
@@ -169,10 +146,7 @@ int usbctrl_vendorreq(struct intf_hdl *pintfhdl, u8 request, u16 value, u16 inde
 	
 	}
 
-	// release IO memory used by vendorreq
-	#ifdef CONFIG_USB_VENDOR_REQ_BUFFER_DYNAMIC_ALLOCATE
-	rtw_mfree(tmp_buf, tmp_buflen);
-	#endif
+	kfree(pIo_buf);
 
 release_mutex:
 	#ifdef CONFIG_USB_VENDOR_REQ_MUTEX
@@ -272,102 +246,6 @@ unsigned int ffaddr2pipehdl(struct dvobj_priv *pdvobj, u32 addr)
 	return pipe;
 }
 
-struct zero_bulkout_context{
-	void *pbuf;
-	void *purb;
-	void *pirp;
-	void *padapter;
-};
-
-static void usb_bulkout_zero_complete(struct urb *purb, struct pt_regs *regs)
-{	
-	struct zero_bulkout_context *pcontext = (struct zero_bulkout_context *)purb->context;
-
-	//DBG_8192C("+usb_bulkout_zero_complete\n");
-	
-	if(pcontext)
-	{
-		if(pcontext->pbuf)
-		{			
-			rtw_mfree(pcontext->pbuf, sizeof(int));	
-		}	
-
-		if(pcontext->purb && (pcontext->purb==purb))
-		{
-			usb_free_urb(pcontext->purb);
-		}
-
-	
-		rtw_mfree((u8*)pcontext, sizeof(struct zero_bulkout_context));	
-	}	
-	
-
-}
-
-static u32 usb_bulkout_zero(struct intf_hdl *pintfhdl, u32 addr)
-{	
-	int pipe, status, len;
-	u32 ret;
-	unsigned char *pbuf;
-	struct zero_bulkout_context *pcontext;
-	PURB	purb = NULL;	
-	_adapter *padapter = (_adapter *)pintfhdl->padapter;
-	struct dvobj_priv *pdvobj = adapter_to_dvobj(padapter);
-	struct pwrctrl_priv *pwrctl = dvobj_to_pwrctl(pdvobj);
-	struct usb_device *pusbd = pdvobj->pusbdev;
-
-	//DBG_871X("%s\n", __func__);
-	
-		
-	if (RTW_CANNOT_TX(padapter))
-	{		
-		return _FAIL;
-	}
-	
-
-	pcontext = (struct zero_bulkout_context *)rtw_zmalloc(sizeof(struct zero_bulkout_context));
-	if (pcontext == NULL) {
-		return _FAIL;
-	}
-
-	pbuf = (unsigned char *)rtw_zmalloc(sizeof(int));	
-    	purb = usb_alloc_urb(0, GFP_ATOMIC);
-
-	//translate DMA FIFO addr to pipehandle
-	pipe = ffaddr2pipehdl(pdvobj, addr);
-
-	len = 0;
-	pcontext->pbuf = pbuf;
-	pcontext->purb = purb;
-	pcontext->pirp = NULL;
-	pcontext->padapter = padapter;
-
-	
-	//translate DMA FIFO addr to pipehandle
-	//pipe = ffaddr2pipehdl(pdvobj, addr);	
-
-	usb_fill_bulk_urb(purb, pusbd, pipe, 
-       				pbuf,
-              			len,
-              			usb_bulkout_zero_complete,
-              			pcontext);//context is pcontext
-
-	status = usb_submit_urb(purb, GFP_ATOMIC);
-
-	if (!status)
-	{		
-		ret= _SUCCESS;
-	}
-	else
-	{
-		ret= _FAIL;
-	}
-	
-	
-	return _SUCCESS;
-
-}
-
 void usb_read_mem(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *rmem)
 {
 	
@@ -406,7 +284,6 @@ void usb_read_port_cancel(struct intf_hdl *pintfhdl)
 static void usb_write_port_complete(struct urb *purb, struct pt_regs *regs)
 {
 	_irqL irqL;
-	int i;
 	struct xmit_buf *pxmitbuf = (struct xmit_buf *)purb->context;
 	//struct xmit_frame *pxmitframe = (struct xmit_frame *)pxmitbuf->priv_data;
 	//_adapter			*padapter = pxmitframe->padapter;
@@ -556,16 +433,14 @@ u32 usb_write_port(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *wmem)
 	_irqL irqL;
 	unsigned int pipe;
 	int status;
-	u32 ret = _FAIL, bwritezero = _FALSE;
+	u32 ret = _FAIL;
 	PURB	purb = NULL;
 	_adapter *padapter = (_adapter *)pintfhdl->padapter;
 	struct dvobj_priv	*pdvobj = adapter_to_dvobj(padapter);
-	struct pwrctrl_priv *pwrctl = dvobj_to_pwrctl(pdvobj);
 	struct xmit_priv	*pxmitpriv = &padapter->xmitpriv;
 	struct xmit_buf *pxmitbuf = (struct xmit_buf *)wmem;
 	struct xmit_frame *pxmitframe = (struct xmit_frame *)pxmitbuf->priv_data;
 	struct usb_device *pusbd = pdvobj->pusbdev;
-	struct pkt_attrib *pattrib = &pxmitframe->attrib;
 	
 _func_enter_;	
 	
@@ -677,15 +552,6 @@ _func_enter_;
 	}
 
 	ret= _SUCCESS;
-
-//   Commented by Albert 2009/10/13
-//   We add the URB_ZERO_PACKET flag to urb so that the host will send the zero packet automatically.
-/*	
-	if(bwritezero == _TRUE)
-	{
-		usb_bulkout_zero(pintfhdl, addr);
-	}
-*/
 
 	RT_TRACE(_module_hci_ops_os_c_,_drv_err_,("-usb_write_port\n"));
 
@@ -869,7 +735,6 @@ u32 usb_read_port(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *rmem)
 	struct recv_buf	*precvbuf = (struct recv_buf *)rmem;
 	_adapter		*adapter = pintfhdl->padapter;
 	struct dvobj_priv	*pdvobj = adapter_to_dvobj(adapter);
-	struct pwrctrl_priv *pwrctl = dvobj_to_pwrctl(pdvobj);
 	struct recv_priv	*precvpriv = &adapter->recvpriv;
 	struct usb_device	*pusbd = pdvobj->pusbdev;
 
@@ -960,8 +825,6 @@ void usb_recv_tasklet(void *priv)
 
 void usb_read_port_complete(struct urb *purb, struct pt_regs *regs)
 {
-	_irqL irqL;
-	uint isevt, *pbuf;
 	struct recv_buf	*precvbuf = (struct recv_buf *)purb->context;	
 	_adapter 			*padapter =(_adapter *)precvbuf->adapter;
 	struct recv_priv	*precvpriv = &padapter->recvpriv;	
@@ -1065,7 +928,6 @@ _func_exit_;
 
 u32 usb_read_port(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *rmem)
 {
-	_irqL irqL;
 	int err;
 	unsigned int pipe;
 	SIZE_PTR tmpaddr=0;
@@ -1075,7 +937,6 @@ u32 usb_read_port(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *rmem)
 	struct recv_buf	*precvbuf = (struct recv_buf *)rmem;
 	_adapter		*adapter = pintfhdl->padapter;
 	struct dvobj_priv	*pdvobj = adapter_to_dvobj(adapter);
-	struct pwrctrl_priv *pwrctl = dvobj_to_pwrctl(pdvobj);
 	struct recv_priv	*precvpriv = &adapter->recvpriv;
 	struct usb_device	*pusbd = pdvobj->pusbdev;
 	
@@ -1162,5 +1023,3 @@ _func_exit_;
 	return ret;
 }
 #endif	// CONFIG_USE_USB_BUFFER_ALLOC_RX
-
-

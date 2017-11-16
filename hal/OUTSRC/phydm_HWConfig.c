@@ -633,7 +633,6 @@ odm_RxPhyStatus92CSeries_Parsing(
 	IN		PODM_PACKET_INFO_T			pPktinfo
 	)
 {							
-	SWAT_T				*pDM_SWAT_Table = &pDM_Odm->DM_SWAT_Table;
 	u1Byte				i, Max_spatial_stream;
 	s1Byte				rx_pwr[4], rx_pwr_all=0;
 	u1Byte				EVM, PWDB_ALL = 0, PWDB_ALL_BT;
@@ -1510,7 +1509,6 @@ odm_Process_RSSIForDM(
 		#if (RTL8812A_SUPPORT == 1)
 		if(pDM_Odm->SupportICType == ODM_RTL8812)
 		{
-			pPATHDIV_T	pDM_PathDiv = &pDM_Odm->DM_PathDiv;
 			if(pPktinfo->bPacketToSelf || pPktinfo->bPacketMatchBSSID)
 			{
 				if(pPktinfo->DataRate > DESC_RATE11M)
@@ -1775,8 +1773,6 @@ ODM_ConfigRFWithHeaderFile(
 	IN 	ODM_RF_RADIO_PATH_E 	eRFPath
     )
 {
-	PADAPTER		Adapter = pDM_Odm->Adapter;
-
    ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, 
 		 		("===>ODM_ConfigRFWithHeaderFile (%s)\n", (pDM_Odm->bIsMPChip) ? "MPChip" : "TestChip"));
     ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, 
@@ -1969,13 +1965,6 @@ ODM_ConfigBBWithHeaderFile(
 	IN 	ODM_BB_Config_Type 		ConfigType
 	)
 {
-#if (DM_ODM_SUPPORT_TYPE & (ODM_CE|ODM_WIN))
-	PADAPTER		Adapter = pDM_Odm->Adapter;
-#if (DM_ODM_SUPPORT_TYPE &  ODM_WIN)
-	PMGNT_INFO		pMgntInfo = &(Adapter->MgntInfo);	
-#endif
-#endif
-	
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, 
 		 		("===>ODM_ConfigBBWithHeaderFile (%s)\n", (pDM_Odm->bIsMPChip) ? "MPChip" : "TestChip"));
     ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, 
@@ -2129,9 +2118,6 @@ ODM_ConfigMACWithHeaderFile(
 	IN 	PDM_ODM_T	pDM_Odm
 	)
 {
-#if (DM_ODM_SUPPORT_TYPE &  (ODM_CE|ODM_WIN))	
-	PADAPTER		Adapter = pDM_Odm->Adapter;
-#endif
 	u1Byte result = HAL_STATUS_SUCCESS;
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, 
@@ -2348,8 +2334,3 @@ ODM_GetHWImgVersion(
 
 	return Version;
 }
-
-
-
-
-

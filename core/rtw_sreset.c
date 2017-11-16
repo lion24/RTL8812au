@@ -55,7 +55,6 @@ u8 sreset_get_wifi_status(_adapter *padapter)
 
 	u8 status = WIFI_STATUS_SUCCESS;
 	u32 val32 = 0;
-	_irqL irqL;
 	if(psrtpriv->silent_reset_inprogress == _TRUE)
         {
 		return status;
@@ -113,11 +112,9 @@ bool sreset_inprogress(_adapter *padapter)
 
 void sreset_restore_security_station(_adapter *padapter)
 {
-	u8 EntryId = 0;
 	struct mlme_priv *mlmepriv = &padapter->mlmepriv;
 	struct sta_priv * pstapriv = &padapter->stapriv;
 	struct sta_info *psta;
-	struct security_priv* psecuritypriv=&(padapter->securitypriv);
 	struct mlme_ext_info	*pmlmeinfo = &padapter->mlmeextpriv.mlmext_info;
 
 	{
@@ -241,8 +238,6 @@ void sreset_restore_network_station(_adapter *padapter)
 void sreset_restore_network_status(_adapter *padapter)
 {
 	struct mlme_priv *mlmepriv = &padapter->mlmepriv;
-	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
-	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 
 	if (check_fwstate(mlmepriv, WIFI_STATION_STATE)) {
 		DBG_871X(FUNC_ADPT_FMT" fwstate:0x%08x - WIFI_STATION_STATE\n", FUNC_ADPT_ARG(padapter), get_fwstate(mlmepriv));
@@ -318,9 +313,6 @@ void sreset_reset(_adapter *padapter)
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	struct sreset_priv *psrtpriv = &pHalData->srestpriv;
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
-	struct mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
-	struct xmit_priv	*pxmitpriv = &padapter->xmitpriv;
-	_irqL irqL;
 	u32 start = rtw_get_current_time();
 	struct dvobj_priv *psdpriv = padapter->dvobj;
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
@@ -362,4 +354,3 @@ void sreset_reset(_adapter *padapter)
 	pdbgpriv->dbg_sreset_cnt++;
 #endif
 }
-

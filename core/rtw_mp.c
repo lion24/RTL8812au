@@ -147,112 +147,6 @@ static void _init_mp_priv_(struct mp_priv *pmp_priv)
 	_rtw_memcpy(pnetwork->Ssid.Ssid, "mp_871x", pnetwork->Ssid.SsidLength);
 }
 
-#ifdef PLATFORM_WINDOWS
-/*
-void mp_wi_callback(
-	IN NDIS_WORK_ITEM*	pwk_item,
-	IN PVOID			cntx
-	)
-{
-	_adapter* padapter =(_adapter *)cntx;
-	struct mp_priv *pmppriv=&padapter->mppriv;
-	struct mp_wi_cntx	*pmp_wi_cntx=&pmppriv->wi_cntx;
-
-	// Execute specified action.
-	if(pmp_wi_cntx->curractfunc != NULL)
-	{
-		LARGE_INTEGER	cur_time;
-		ULONGLONG start_time, end_time;
-		NdisGetCurrentSystemTime(&cur_time);	// driver version
-		start_time = cur_time.QuadPart/10; // The return value is in microsecond
-
-		pmp_wi_cntx->curractfunc(padapter);
-
-		NdisGetCurrentSystemTime(&cur_time);	// driver version
-		end_time = cur_time.QuadPart/10; // The return value is in microsecond
-
-		RT_TRACE(_module_mp_, _drv_info_,
-			 ("WorkItemActType: %d, time spent: %I64d us\n",
-			  pmp_wi_cntx->param.act_type, (end_time-start_time)));
-	}
-
-	NdisAcquireSpinLock(&(pmp_wi_cntx->mp_wi_lock));
-	pmp_wi_cntx->bmp_wi_progress= _FALSE;
-	NdisReleaseSpinLock(&(pmp_wi_cntx->mp_wi_lock));
-
-	if (pmp_wi_cntx->bmpdrv_unload)
-	{
-		NdisSetEvent(&(pmp_wi_cntx->mp_wi_evt));
-	}
-
-}
-*/
-
-static int init_mp_priv_by_os(struct mp_priv *pmp_priv)
-{
-	struct mp_wi_cntx *pmp_wi_cntx;
-
-	if (pmp_priv == NULL) return _FAIL;
-
-	pmp_priv->rx_testcnt = 0;
-	pmp_priv->rx_testcnt1 = 0;
-	pmp_priv->rx_testcnt2 = 0;
-
-	pmp_priv->tx_testcnt = 0;
-	pmp_priv->tx_testcnt1 = 0;
-
-	pmp_wi_cntx = &pmp_priv->wi_cntx
-	pmp_wi_cntx->bmpdrv_unload = _FALSE;
-	pmp_wi_cntx->bmp_wi_progress = _FALSE;
-	pmp_wi_cntx->curractfunc = NULL;
-
-	return _SUCCESS;
-}
-#endif
-
-#ifdef PLATFORM_LINUX
-static int init_mp_priv_by_os(struct mp_priv *pmp_priv)
-{
-	int i, res;
-	struct mp_xmit_frame *pmp_xmitframe;
-
-	if (pmp_priv == NULL) return _FAIL;
-
-	_rtw_init_queue(&pmp_priv->free_mp_xmitqueue);
-
-	pmp_priv->pallocated_mp_xmitframe_buf = NULL;
-	pmp_priv->pallocated_mp_xmitframe_buf = rtw_zmalloc(NR_MP_XMITFRAME * sizeof(struct mp_xmit_frame) + 4);
-	if (pmp_priv->pallocated_mp_xmitframe_buf == NULL) {
-		res = _FAIL;
-		goto _exit_init_mp_priv;
-	}
-
-	pmp_priv->pmp_xmtframe_buf = pmp_priv->pallocated_mp_xmitframe_buf + 4 - ((SIZE_PTR) (pmp_priv->pallocated_mp_xmitframe_buf) & 3);
-
-	pmp_xmitframe = (struct mp_xmit_frame*)pmp_priv->pmp_xmtframe_buf;
-
-	for (i = 0; i < NR_MP_XMITFRAME; i++)
-	{
-		_rtw_init_listhead(&pmp_xmitframe->list);
-		rtw_list_insert_tail(&pmp_xmitframe->list, &pmp_priv->free_mp_xmitqueue.queue);
-
-		pmp_xmitframe->pkt = NULL;
-		pmp_xmitframe->frame_tag = MP_FRAMETAG;
-		pmp_xmitframe->padapter = pmp_priv->papdater;
-
-		pmp_xmitframe++;
-	}
-
-	pmp_priv->free_mp_xmitframe_cnt = NR_MP_XMITFRAME;
-
-	res = _SUCCESS;
-
-_exit_init_mp_priv:
-
-	return res;
-}
-#endif
-
 static void mp_init_xmit_attrib(struct mp_tx *pmptx, PADAPTER padapter)
 {
 	struct pkt_attrib *pattrib;
@@ -330,30 +224,6 @@ void free_mp_priv(struct mp_priv *pmp_priv)
 }
 
 
-static VOID PHY_IQCalibrate_default(
-	IN	PADAPTER	pAdapter,
-	IN	BOOLEAN 	bReCovery
-	)
-{	
-	DBG_871X("%s\n", __func__);
-}
-
-static VOID PHY_LCCalibrate_default(
-	IN	PADAPTER	pAdapter
-	)
-{
-	DBG_871X("%s\n", __func__);
-}
-
-static VOID PHY_SetRFPathSwitch_default(
-	IN	PADAPTER	pAdapter,
-	IN	BOOLEAN		bMain
-	)
-{
-	DBG_871X("%s\n", __func__);
-}
-
-
 void mpt_InitHWConfig(PADAPTER Adapter)
 {
 	if (IS_HARDWARE_TYPE_8723B(Adapter))
@@ -403,39 +273,11 @@ void mpt_InitHWConfig(PADAPTER Adapter)
 #endif
 
 #if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-/*
 #define PHY_IQCalibrate(a,b)	PHY_IQCalibrate_8812A(a,b)
 #define PHY_LCCalibrate(a)	PHY_LCCalibrate_8812A(&(GET_HAL_DATA(a)->odmpriv))
 #define PHY_SetRFPathSwitch(a,b) PHY_SetRFPathSwitch_8812A(a,b)
-*/
-
-#ifndef CONFIG_RTL8812A
-#define	PHY_IQCalibrate_8812A 
-#define	PHY_LCCalibrate_8812A 
-#define	PHY_SetRFPathSwitch_8812A 
-#endif
-
-#ifndef CONFIG_RTL8821A
-#define	PHY_IQCalibrate_8821A 
-#define	PHY_LCCalibrate_8821A 
-#define	PHY_SetRFPathSwitch_8812A 
-#endif
-
-#define PHY_IQCalibrate(_Adapter, b)	\
-		IS_HARDWARE_TYPE_8812(_Adapter) ? PHY_IQCalibrate_8812A(_Adapter, b) : \
-		IS_HARDWARE_TYPE_8821(_Adapter) ? PHY_IQCalibrate_8821A(&(GET_HAL_DATA(_Adapter)->odmpriv), b) : \
-		PHY_IQCalibrate_default(_Adapter, b)
-
-#define PHY_LCCalibrate(_Adapter)	\
-		IS_HARDWARE_TYPE_8812(_Adapter) ? PHY_LCCalibrate_8812A(&(GET_HAL_DATA(_Adapter)->odmpriv)) : \
-		IS_HARDWARE_TYPE_8821(_Adapter) ? PHY_LCCalibrate_8821A(&(GET_HAL_DATA(_Adapter)->odmpriv)) : \
-		PHY_LCCalibrate_default(_Adapter)
-
-#define PHY_SetRFPathSwitch(_Adapter, b)	\
-		(IS_HARDWARE_TYPE_JAGUAR(_Adapter)) ? PHY_SetRFPathSwitch_8812A(_Adapter, b) : \
-		PHY_SetRFPathSwitch_default(_Adapter, b)
-
 #endif //#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
+
 #ifdef CONFIG_RTL8192E
 #define PHY_IQCalibrate(a,b)	PHY_IQCalibrate_8192E(a,b)
 #define PHY_LCCalibrate(a)	PHY_LCCalibrate_8192E(&(GET_HAL_DATA(a)->odmpriv))
@@ -466,11 +308,9 @@ MPT_InitializeAdapter(
 	IN	u8				Channel
 	)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 	s32		rtStatus = _SUCCESS;
 	PMPT_CONTEXT	pMptCtx = &pAdapter->mppriv.MptCtx;
 	u32		ledsetting;
-	struct mlme_priv *pmlmepriv = &pAdapter->mlmepriv;
 
 	pMptCtx->bMptDrvUnload = _FALSE;
 	pMptCtx->bMassProdTest = _FALSE;
@@ -648,10 +488,6 @@ static void disable_dm(PADAPTER padapter)
 #ifndef CONFIG_RTL8723A
 	u8 v8;
 #endif
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
-
-
 	//3 1. disable firmware dynamic mechanism
 	// disable Power Training, Rate Adaptive
 #ifdef CONFIG_RTL8723A
@@ -1000,23 +836,6 @@ static VOID mpt_AdjustRFRegByRateByChan92CU(PADAPTER pAdapter, u8 RateIdx, u8 Ch
  * 01/09/2009	MHC		Add CCK modification for 40MHZ. Suggestion from SD3.
  *
  *---------------------------------------------------------------------------*/
-static void mpt_SwitchRfSetting(PADAPTER pAdapter)
-{
-	Hal_mpt_SwitchRfSetting(pAdapter);
-    }
-
-/*---------------------------hal\rtl8192c\MPT_Phy.c---------------------------*/
-/*---------------------------hal\rtl8192c\MPT_HelperFunc.c---------------------------*/
-static void MPT_CCKTxPowerAdjust(PADAPTER Adapter, BOOLEAN bInCH14)
-{
-	Hal_MPT_CCKTxPowerAdjust(Adapter,bInCH14);
-}
-
-static void MPT_CCKTxPowerAdjustbyIndex(PADAPTER pAdapter, BOOLEAN beven)
-{
-	Hal_MPT_CCKTxPowerAdjustbyIndex(pAdapter,beven);
-	}
-
 /*---------------------------hal\rtl8192c\MPT_HelperFunc.c---------------------------*/
 
 /*
@@ -1040,17 +859,6 @@ void SetBandwidth(PADAPTER pAdapter)
 
 }
 
-static void SetCCKTxPower(PADAPTER pAdapter, u8 *TxPower)
-{
-	Hal_SetCCKTxPower(pAdapter,TxPower);
-}
-
-static void SetOFDMTxPower(PADAPTER pAdapter, u8 *TxPower)
-{
-	Hal_SetOFDMTxPower(pAdapter,TxPower);
-	}
-
-
 void SetAntenna(PADAPTER pAdapter)
 {
 	Hal_SetAntenna(pAdapter);
@@ -1063,9 +871,7 @@ void	SetAntennaPathPower(PADAPTER pAdapter)
 	
 int SetTxPower(PADAPTER pAdapter)
 {
-	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);	
 	u1Byte			CurrChannel;
-	BOOLEAN 		bResult = _TRUE;
 	PMPT_CONTEXT	pMptCtx = &(pAdapter->mppriv.MptCtx);
 	u1Byte			rf, TxPower[2];
 
@@ -1123,16 +929,6 @@ void MP_PHY_SetRFPathSwitch(PADAPTER pAdapter ,BOOLEAN bMain)
 s32 SetThermalMeter(PADAPTER pAdapter, u8 target_ther)
 {
 	return Hal_SetThermalMeter( pAdapter, target_ther);
-}
-
-static void TriggerRFThermalMeter(PADAPTER pAdapter)
-{
-	Hal_TriggerRFThermalMeter(pAdapter);
-}
-
-static u8 ReadRFThermalMeter(PADAPTER pAdapter)
-{
-	return Hal_ReadRFThermalMeter(pAdapter);
 }
 
 void GetThermalMeter(PADAPTER pAdapter, u8 *value)
@@ -1406,7 +1202,7 @@ void fill_tx_desc_8812a(PADAPTER padapter)
 	
 	u32	pkt_size = pattrib->last_txcmdsz;
 	s32 bmcast = IS_MCAST(pattrib->ra);
-	u8 data_rate,pwr_status,offset;
+	u8 offset;
 
 	SET_TX_DESC_FIRST_SEG_8812(pDesc, 1);
 	SET_TX_DESC_LAST_SEG_8812(pDesc, 1);
@@ -1559,8 +1355,8 @@ static void Rtw_MPSetMacTxEDCA(PADAPTER padapter)
 
 void SetPacketTx(PADAPTER padapter)
 {
-	u8 *ptr, *pkt_start, *pkt_end,*fctrl;
-	u32 pkt_size,offset,startPlace,i;
+	u8 *ptr, *pkt_start, *pkt_end;
+	u32 pkt_size,i;
 	struct rtw_ieee80211_hdr *hdr;
 	u8 payload;
 	s32 bmcast;
@@ -2180,6 +1976,7 @@ ULONG getPowerDiffByRate8188E(
 
 
 
+#if defined(CONFIG_RTL8188E)
 static	ULONG
 mpt_ProQueryCalTxPower_8188E(
 	IN	PADAPTER		pAdapter,
@@ -2189,12 +1986,11 @@ mpt_ProQueryCalTxPower_8188E(
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(pAdapter);
 	u1Byte				TxCount=TX_1S, i = 0;	//default set to 1S
 	//PMGNT_INFO			pMgntInfo = &(pAdapter->MgntInfo); 
-	ULONG				TxPower = 1, PwrGroup=0, PowerDiffByRate=0;
-	ULONG				TxPowerCCK = 1, TxPowerOFDM = 1, TxPowerBW20 = 1, TxPowerBW40 = 1 ; 
+	ULONG				TxPower = 1, PowerDiffByRate=0;
 	PMPT_CONTEXT		pMptCtx = &(pAdapter->mppriv.MptCtx);
 	u1Byte				CurrChannel = pHalData->CurrentChannel;
 	u1Byte				index = (CurrChannel -1);	
-	u1Byte				rf_path=(RfPath), rfPath;
+	u1Byte				rf_path=(RfPath);
 	u1Byte				limit = 0, rate = 0;
 
 	if(HAL_IsLegalChannel(pAdapter, CurrChannel) == FALSE)
@@ -2276,6 +2072,7 @@ mpt_ProQueryCalTxPower_8188E(
 
 	return TxPower; 
 }
+#endif
 
 
 u8 
@@ -2421,8 +2218,8 @@ ULONG mpt_ProQueryCalTxPower(
 {
 
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
-	ULONG			TxPower = 1, PwrGroup=0, PowerDiffByRate=0;	
-	u1Byte			limit = 0, rate = 0;
+	ULONG			TxPower = 1;	
+	u1Byte			rate = 0;
 	
       #if 0// defined(CONFIG_RTL8192D) ||defined(CONFIG_RTL8192C)
 	if(IS_HARDWARE_TYPE_8188E_before(pAdapter))	
@@ -2486,8 +2283,6 @@ ULONG mpt_ProQueryCalTxPower(
 
 void Hal_ProSetCrystalCap (PADAPTER pAdapter , u32 CrystalCap)
 {
-	HAL_DATA_TYPE		*pHalData	= GET_HAL_DATA(pAdapter);
-
 	CrystalCap = CrystalCap & 0x3F;
 
 	if(IS_HARDWARE_TYPE_8192D(pAdapter))
@@ -2517,4 +2312,3 @@ void Hal_ProSetCrystalCap (PADAPTER pAdapter , u32 CrystalCap)
 	}
 }
 #endif
-

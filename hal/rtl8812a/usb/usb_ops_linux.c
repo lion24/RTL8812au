@@ -229,10 +229,10 @@ _func_exit_;
 }
 #endif
 
+#ifdef CONFIG_CONCURRENT_MODE	
 static s32 pre_recv_entry(union recv_frame *precvframe, u8 *pphy_status)
 {	
 	s32 ret=_SUCCESS;
-#ifdef CONFIG_CONCURRENT_MODE	
 	u8 *primary_myid, *secondary_myid, *paddr1;
 	union recv_frame	*precvframe_if2 = NULL;
 	_adapter *primary_padapter = precvframe->u.hdr.adapter;
@@ -382,11 +382,10 @@ static s32 pre_recv_entry(union recv_frame *precvframe, u8 *pphy_status)
 	
 	//ret = rtw_recv_entry(precvframe);
 
-#endif
-
 	return ret;
 
 }
+#endif
 
 int recvbuf2recvframe(_adapter *padapter, 
 #ifdef CONFIG_USE_USB_BUFFER_ALLOC_RX
@@ -403,7 +402,6 @@ _pkt *pskb
 	u8				*pphy_status = NULL;	
 	union recv_frame	*precvframe = NULL;
 	struct rx_pkt_attrib	*pattrib = NULL;
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	struct recv_priv	*precvpriv = &padapter->recvpriv;
 	_queue			*pfree_recv_queue = &precvpriv->free_recv_queue;
 

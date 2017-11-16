@@ -147,7 +147,6 @@ hal_com_config_channel_plan(
 	)
 {
 	PHAL_DATA_TYPE	pHalData;
-	u8 hwConfig;
 	u8 chnlPlan;
 
 
@@ -547,51 +546,8 @@ static VOID _ThreeOutPipeMapping(
 	}
 
 }
-static VOID _FourOutPipeMapping(
-	IN	PADAPTER	pAdapter,
-	IN	BOOLEAN	 	bWIFICfg
-	)
-{
-	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(pAdapter);
 
-	if(bWIFICfg){//for WMM
-		
-		//	BK, 	BE, 	VI, 	VO, 	BCN,	CMD,MGT,HIGH,HCCA 
-		//{  1, 	2, 	1, 	0, 	0, 	0, 	0, 	0, 		0	};
-		//0:H, 1:N, 2:L ,3:E
-		
-		pdvobjpriv->Queue2Pipe[0] = pdvobjpriv->RtOutPipe[0];//VO
-		pdvobjpriv->Queue2Pipe[1] = pdvobjpriv->RtOutPipe[1];//VI
-		pdvobjpriv->Queue2Pipe[2] = pdvobjpriv->RtOutPipe[2];//BE
-		pdvobjpriv->Queue2Pipe[3] = pdvobjpriv->RtOutPipe[1];//BK
-		
-		pdvobjpriv->Queue2Pipe[4] = pdvobjpriv->RtOutPipe[0];//BCN
-		pdvobjpriv->Queue2Pipe[5] = pdvobjpriv->RtOutPipe[0];//MGT
-		pdvobjpriv->Queue2Pipe[6] = pdvobjpriv->RtOutPipe[3];//HIGH
-		pdvobjpriv->Queue2Pipe[7] = pdvobjpriv->RtOutPipe[0];//TXCMD
-		
-	}
-	else{//typical setting
-
-		
-		//	BK, 	BE, 	VI, 	VO, 	BCN,	CMD,MGT,HIGH,HCCA 
-		//{  2, 	2, 	1, 	0, 	0, 	0, 	0, 	0, 		0	};			
-		//0:H, 1:N, 2:L 
-		
-		pdvobjpriv->Queue2Pipe[0] = pdvobjpriv->RtOutPipe[0];//VO
-		pdvobjpriv->Queue2Pipe[1] = pdvobjpriv->RtOutPipe[1];//VI
-		pdvobjpriv->Queue2Pipe[2] = pdvobjpriv->RtOutPipe[2];//BE
-		pdvobjpriv->Queue2Pipe[3] = pdvobjpriv->RtOutPipe[2];//BK
-		
-		pdvobjpriv->Queue2Pipe[4] = pdvobjpriv->RtOutPipe[0];//BCN
-		pdvobjpriv->Queue2Pipe[5] = pdvobjpriv->RtOutPipe[0];//MGT
-		pdvobjpriv->Queue2Pipe[6] = pdvobjpriv->RtOutPipe[3];//HIGH
-		pdvobjpriv->Queue2Pipe[7] = pdvobjpriv->RtOutPipe[0];//TXCMD	
-	}
-
-}
-BOOLEAN
-Hal_MappingOutPipe(
+BOOLEAN Hal_MappingOutPipe(
 	IN	PADAPTER	pAdapter,
 	IN	u8		NumOutPipe
 	)
@@ -653,9 +609,6 @@ void c2h_evt_clear(_adapter *adapter)
 s32 c2h_evt_read(_adapter *adapter, u8 *buf)
 {
 	s32 ret = _FAIL;
-	struct c2h_evt_hdr *c2h_evt;
-	int i;
-	u8 trigger;
 
 	if (buf == NULL)
 		goto exit;
@@ -1368,8 +1321,6 @@ void GetHalODMVar(
 	PVOID					pValue1,
 	PVOID					pValue2)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	PDM_ODM_T podmpriv = &pHalData->odmpriv;
 	switch(eVariable){
 #if defined(CONFIG_SIGNAL_DISPLAY_DBM) && defined(CONFIG_BACKGROUND_NOISE_MONITOR)
 		case HAL_ODM_NOISE_MONITOR:

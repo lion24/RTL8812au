@@ -97,15 +97,6 @@ CheckPositive(
         return FALSE;
     }
 }
-static BOOLEAN
-CheckNegative(
-    IN  PDM_ODM_T     pDM_Odm,
-    IN  const u4Byte  Condition1,
-    IN  const u4Byte  Condition2
-    )
-{
-    return TRUE;
-}
 
 /******************************************************************************
 *                           AGC_TAB.TXT
@@ -1292,4 +1283,3 @@ ODM_ReadAndConfig_MP_8812A_PHY_REG_PG_NEC(
 
 
 #endif // end of HWIMG_SUPPORT
-

@@ -272,7 +272,6 @@ VOID _InitBeaconMaxError_8192E(
 	IN  PADAPTER	Adapter,
 	IN	BOOLEAN		InfraMode
 	);
-void _BBTurnOnBlock_8192E(PADAPTER padapter);
 void SetBeaconRelatedRegisters8192E(PADAPTER padapter);
 VOID hal_ReadRFType_8192E(PADAPTER	Adapter);
 // RTL8192E-MAC Setting
@@ -312,4 +311,3 @@ void rtl8192e_combo_card_WifiOnlyHwInit(PADAPTER Adapter);
 #endif
 
 #endif //__RTL8192E_HAL_H__
-

@@ -157,7 +157,6 @@ odm_CommonInfoSelfInit(
 	IN		PDM_ODM_T		pDM_Odm
 	)
 {
-	pFAT_T			pDM_FatTable = &pDM_Odm->DM_FatTable;
 	pDM_Odm->bCckHighPower = (BOOLEAN) ODM_GetBBReg(pDM_Odm, ODM_REG(CCK_RPT_FORMAT,pDM_Odm), ODM_BIT(CCK_RPT_FORMAT,pDM_Odm));		
 	pDM_Odm->RFPathRxEnable = (u1Byte) ODM_GetBBReg(pDM_Odm, ODM_REG(BB_RX_PATH,pDM_Odm), ODM_BIT(BB_RX_PATH,pDM_Odm));
 #if (DM_ODM_SUPPORT_TYPE != ODM_CE)	
@@ -1502,7 +1501,6 @@ ODM_SingleDualAntennaDefaultSetting(
 	)
 {
 	pSWAT_T		pDM_SWAT_Table = &pDM_Odm->DM_SWAT_Table;
-	PADAPTER	pAdapter	 =  pDM_Odm->Adapter;
 	u1Byte btAntNum = 2;
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN))
 	btAntNum=BT_GetPgAntNum(pAdapter);
@@ -1553,7 +1551,7 @@ ODM_SingleDualAntennaDetection(
 	pSWAT_T		pDM_SWAT_Table = &pDM_Odm->DM_SWAT_Table;
 	u4Byte		CurrentChannel,RfLoopReg;
 	u1Byte		n;
-	u4Byte		Reg88c, Regc08, Reg874, Regc50, Reg948=0, Regb2c=0, Reg92c=0, AFE_rRx_Wait_CCA=0;
+	u4Byte		Reg88c, Regc08, Reg874, Regc50, AFE_rRx_Wait_CCA=0;
 	u1Byte		initial_gain = 0x5a;
 	u4Byte		PSD_report_tmp;
 	u4Byte		AntA_report = 0x0, AntB_report = 0x0,AntO_report=0x0;
@@ -2066,8 +2064,6 @@ ODM_UpdateInitRate(
 	IN	u1Byte		Rate
 	)
 {
-	u1Byte			p = 0;
-
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD,("Get C2H Command! Rate=0x%x\n", Rate));
 	
 	if(pDM_Odm->SupportICType == ODM_RTL8821  || pDM_Odm->SupportICType == ODM_RTL8812  || 

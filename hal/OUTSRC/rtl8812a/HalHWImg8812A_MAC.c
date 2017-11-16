@@ -97,15 +97,6 @@ CheckPositive(
         return FALSE;
     }
 }
-static BOOLEAN
-CheckNegative(
-    IN  PDM_ODM_T     pDM_Odm,
-    IN  const u4Byte  Condition1,
-    IN  const u4Byte  Condition2
-    )
-{
-    return TRUE;
-}
 
 /******************************************************************************
 *                           MAC_REG.TXT
@@ -288,4 +279,3 @@ ODM_GetVersion_MP_8812A_MAC_REG(void)
 }
 
 #endif // end of HWIMG_SUPPORT
-

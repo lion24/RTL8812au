@@ -19,19 +19,36 @@
  ******************************************************************************/
 #define _RTW_RECV_C_
 
+#include <linux/ieee80211.h>
+
 #include <drv_types.h>
 
+static u8 SNAP_ETH_TYPE_IPX[2] = {0x81, 0x37};
+static u8 SNAP_ETH_TYPE_APPLETALK_AARP[2] = {0x80, 0xf3};
+static u8 SNAP_ETH_TYPE_APPLETALK_DDP[2] = {0x80, 0x9b};
+static u8 SNAP_ETH_TYPE_TDLS[2] = {0x89, 0x0d};
+static u8 SNAP_HDR_APPLETALK_DDP[3] = {0x08, 0x00, 0x07}; // Datagram Delivery Protocol
+
+static u8 oui_8021h[] = {0x00, 0x00, 0xf8};
+static u8 oui_rfc1042[]= {0x00,0x00,0x00};
+
+static u8 rtw_rfc1042_header[] =
+{ 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00 };
+/* Bridge-Tunnel header (for EtherTypes ETH_P_AARP and ETH_P_IPX) */
+static u8 rtw_bridge_tunnel_header[] =
+{ 0xaa, 0xaa, 0x03, 0x00, 0x00, 0xf8 };
+
+
 #if defined (PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
+
 
 #error "Shall be Linux or Windows, but not both!\n"
 
 #endif
 
-
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 void rtw_signal_stat_timer_hdl(RTW_TIMER_HDL_ARGS);
 #endif //CONFIG_NEW_SIGNAL_STAT_PROCESS
-
 
 void _rtw_init_sta_recv_priv(struct sta_recv_priv *psta_recvpriv)
 {
@@ -1917,7 +1934,6 @@ sint validate_recv_data_frame(_adapter *adapter, union recv_frame *precv_frame)
 	struct sta_info *psta = NULL;
 	u8 *ptr = precv_frame->u.hdr.rx_data;
 	struct rx_pkt_attrib	*pattrib = & precv_frame->u.hdr.attrib;
-	struct sta_priv 	*pstapriv = &adapter->stapriv;
 	struct security_priv	*psecuritypriv = &adapter->securitypriv;	
 	sint ret = _SUCCESS;
 
@@ -3379,8 +3395,6 @@ int recv_indicatepkt_reorder(_adapter *padapter, union recv_frame *prframe)
 		//s1.
 		wlanhdr_to_ethhdr(prframe);
 
-		//if ((pattrib->qos!=1) /*|| pattrib->priority!=0 || IS_MCAST(pattrib->ra)*/
-		//	|| (pattrib->eth_type==0x0806) || (pattrib->ack_policy!=0))
 		if (pattrib->qos!=1)
 		{
 			if ((padapter->bDriverStopped == _FALSE) &&
@@ -3470,33 +3484,16 @@ int recv_indicatepkt_reorder(_adapter *padapter, union recv_frame *prframe)
 	if(!check_indicate_seq(preorder_ctrl, pattrib->seq_num))
 	{
 		pdbgpriv->dbg_rx_ampdu_drop_count++;
-		//pHTInfo->RxReorderDropCounter++;
-		//ReturnRFDList(Adapter, pRfd);
-		//RT_TRACE(COMP_RX_REORDER, DBG_TRACE, ("RxReorderIndicatePacket() ==> Packet Drop!!\n"));
-		//_exit_critical_ex(&ppending_recvframe_queue->lock, &irql);
-		//return _FAIL;
-
 		#ifdef DBG_RX_DROP_FRAME
 		DBG_871X("DBG_RX_DROP_FRAME %s check_indicate_seq fail\n", __FUNCTION__);
 		#endif
-#if 0		
-		rtw_recv_indicatepkt(padapter, prframe);
-
-		_exit_critical_bh(&ppending_recvframe_queue->lock, &irql);
-		
-		goto _success_exit;
-#else
 		goto _err_exit;
-#endif
 	}
 
 
 	//s3. Insert all packet into Reorder Queue to maintain its ordering.
 	if(!enqueue_reorder_recvframe(preorder_ctrl, prframe))
 	{
-		//DbgPrint("recv_indicatepkt_reorder, enqueue_reorder_recvframe fail!\n");
-		//_exit_critical_ex(&ppending_recvframe_queue->lock, &irql);
-		//return _FAIL;
 		#ifdef DBG_RX_DROP_FRAME
 		DBG_871X("DBG_RX_DROP_FRAME %s enqueue_reorder_recvframe fail\n", __FUNCTION__);
 		#endif
@@ -3526,14 +3523,8 @@ int recv_indicatepkt_reorder(_adapter *padapter, union recv_frame *prframe)
 		_cancel_timer_ex(&preorder_ctrl->reordering_ctrl_timer);
 	}
 
-
-_success_exit:
-
-	return _SUCCESS;
-
 _err_exit:
-
-        _exit_critical_bh(&ppending_recvframe_queue->lock, &irql);
+	_exit_critical_bh(&ppending_recvframe_queue->lock, &irql);
 
 	return _FAIL;
 }
@@ -3648,28 +3639,9 @@ int validate_mp_recv_frame(_adapter *adapter, union recv_frame *precv_frame)
 {
 	int ret = _SUCCESS;
 	u8 *ptr = precv_frame->u.hdr.rx_data;	
-	u8 type,subtype;
 
 	if(!adapter->mppriv.bmac_filter)	
 		return ret;
-#if 0	
-	if (1){
-		u8 bDumpRxPkt;
-		type =  GetFrameType(ptr);
-		subtype = GetFrameSubType(ptr); //bit(7)~bit(2)	
-		
-		rtw_hal_get_def_var(adapter, HAL_DEF_DBG_DUMP_RXPKT, &(bDumpRxPkt));
-		if(bDumpRxPkt ==1){//dump all rx packets
-			int i;
-			DBG_871X("############ type:0x%02x subtype:0x%02x ################# \n",type,subtype);
-			
-			for(i=0; i<64;i=i+8)
-				DBG_871X("%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:\n", *(ptr+i),
-				*(ptr+i+1), *(ptr+i+2) ,*(ptr+i+3) ,*(ptr+i+4),*(ptr+i+5), *(ptr+i+6), *(ptr+i+7));
-			DBG_871X("############################# \n");
-		}
-	}
-#endif		
 
 	if(_rtw_memcmp( GetAddr2Ptr(ptr), adapter->mppriv.mac_filter, ETH_ALEN) == _FALSE )
 		ret = _FAIL;
@@ -3688,7 +3660,6 @@ static sint MPwlanhdr_to_ethhdr ( union recv_frame *precvframe)
 	
 	sint ret=_SUCCESS;
 	_adapter			*adapter =precvframe->u.hdr.adapter;
-	struct mlme_priv	*pmlmepriv = &adapter->mlmepriv;
 
 	u8	*ptr = get_recvframe_data(precvframe) ; // point to frame_ctrl field
 	struct rx_pkt_attrib *pattrib = & precvframe->u.hdr.attrib;
@@ -3753,7 +3724,6 @@ int recv_func_prehandle(_adapter *padapter, union recv_frame *rframe)
 {
 	int ret = _SUCCESS;
 	struct rx_pkt_attrib *pattrib = &rframe->u.hdr.attrib;
-	struct recv_priv *precvpriv = &padapter->recvpriv;
 	_queue *pfree_recv_queue = &padapter->recvpriv.free_recv_queue;
 #ifdef CONFIG_MP_INCLUDED
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
@@ -3919,7 +3889,9 @@ int recv_func_posthandle(_adapter *padapter, union recv_frame *prframe)
 {
 	int ret = _SUCCESS;
 	union recv_frame *orig_prframe = prframe;
+#ifdef CONFIG_TDLS
 	struct rx_pkt_attrib *pattrib = &prframe->u.hdr.attrib;
+#endif //CONFIG_TDLS
 	struct recv_priv *precvpriv = &padapter->recvpriv;
 	_queue *pfree_recv_queue = &padapter->recvpriv.free_recv_queue;
 #ifdef CONFIG_TDLS
@@ -3967,8 +3939,7 @@ int recv_func_posthandle(_adapter *padapter, union recv_frame *prframe)
 		((*pcategory==RTW_WLAN_CATEGORY_TDLS) || (*pcategory==RTW_WLAN_CATEGORY_P2P))){
 		ret = OnTDLS(padapter, prframe);	//all of functions will return _FAIL
 		if(ret == _FAIL)
-			goto _exit_recv_func;
-		//goto _exit_recv_func;
+			return ret;
 	}
 #endif //CONFIG_TDLS
 
@@ -4072,9 +4043,6 @@ int recv_func_posthandle(_adapter *padapter, union recv_frame *prframe)
 		goto _recv_data_drop;
 	}
 #endif // CONFIG_80211N_HT
-
-_exit_recv_func:
-	return ret;
 
 _recv_data_drop:
 	precvpriv->rx_drop++;

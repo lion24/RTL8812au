@@ -376,8 +376,6 @@ s32	rtw_hal_xmit(_adapter *padapter, struct xmit_frame *pxmitframe)
 s32	rtw_hal_mgnt_xmit(_adapter *padapter, struct xmit_frame *pmgntframe)
 {
 	s32 ret = _FAIL;
-	unsigned char	*pframe;
-	struct rtw_ieee80211_hdr	*pwlanhdr;
 	update_mgntframe_attrib_addr(padapter, pmgntframe);
 	//pframe = (u8 *)(pmgntframe->buf_addr) + TXDESC_OFFSET;
 	//pwlanhdr = (struct rtw_ieee80211_hdr *)pframe;
