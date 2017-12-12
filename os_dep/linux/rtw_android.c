@@ -922,7 +922,7 @@ response:
 #else
                 if (copy_to_user((void *)priv_cmd.buf, command, bytes_written)) {
 #endif
-			DBG_871X("%s: failed to copy data to user buffer\n", __FUNCTION__);
+			RTW_INFO("%s: failed to copy data to user buffer\n", __FUNCTION__);
 			ret = -EFAULT;
 		}
 	} else

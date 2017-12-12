@@ -20,6 +20,7 @@
 
 #include <linux/ctype.h>	/* tolower() */
 #include <drv_types.h>
+#include <hal_data.h>
 
 #ifdef CONFIG_PROC_DEBUG
 

@@ -503,7 +503,7 @@ mpt_SetTxPower_8812(
 		} break;
 
 		default:
-			DBG_871X("<===mpt_SetTxPower_8812: Illegal channel!!\n");
+			RTW_INFO("<===mpt_SetTxPower_8812: Illegal channel!!\n");
 			break;
 	}
 
@@ -567,7 +567,7 @@ void Hal_SetTxPower(PADAPTER pAdapter)
 
 	if (IS_HARDWARE_TYPE_JAGUAR(pAdapter))
 	{
-		DBG_871X("===> MPT_ProSetTxPower: Jaguar\n");
+		RTW_INFO("===> MPT_ProSetTxPower: Jaguar\n");
 		mpt_SetTxPower_8812(pAdapter, MPT_CCK, pMptCtx->TxPwrLevel);
 		mpt_SetTxPower_8812(pAdapter, MPT_OFDM, pMptCtx->TxPwrLevel);
 		mpt_SetTxPower_8812(pAdapter, MPT_VHT_OFDM, pMptCtx->TxPwrLevel);
@@ -637,7 +637,7 @@ void Hal_SetAntenna(PADAPTER pAdapter)
 
 		default:
 			pMptCtx->MptRfPath = RF_PATH_AB; 
-            DBG_871X("Unknown Tx antenna.\n");
+            RTW_INFO("Unknown Tx antenna.\n");
 			break;
 	}
 
@@ -675,7 +675,7 @@ void Hal_SetAntenna(PADAPTER pAdapter)
 				break;
 
 			default:
-			DBG_871X("Unknown Rx antenna.\n");
+			RTW_INFO("Unknown Rx antenna.\n");
 				break;
 		}
 

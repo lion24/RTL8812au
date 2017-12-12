@@ -2666,19 +2666,19 @@ PHY_GetTxPowerByRateOriginal(
 		return 0;
 
 	if (Band != BAND_ON_2_4G && Band != BAND_ON_5G) {
-		DBG_871X("Invalid band %d in %s\n", Band, __func__);
+		RTW_INFO("Invalid band %d in %s\n", Band, __func__);
 		return value;
 	}
 	if (RFPath > ODM_RF_PATH_D) {
-		DBG_871X("Invalid RfPath %d in %s\n", RFPath, __func__);
+		RTW_INFO("Invalid RfPath %d in %s\n", RFPath, __func__);
 		return value;
 	}
 	if (TxNum >= RF_MAX_TX_NUM) {
-		DBG_871X("Invalid TxNum %d in %s\n", TxNum, __func__);
+		RTW_INFO("Invalid TxNum %d in %s\n", TxNum, __func__);
 		return value;
 	}
 	if (rateIndex >= TX_PWR_BY_RATE_NUM_RATE) {
-		DBG_871X("Invalid RateIndex %d in %s\n", rateIndex, __func__);
+		RTW_INFO("Invalid RateIndex %d in %s\n", rateIndex, __func__);
 		return value;
 	}
 
@@ -3071,7 +3071,7 @@ PHY_GetTxPowerLimitOriginal(
 		break;
 	}
 
-	/*DBG_871X("pMgntInfo->RegPwrTblSel %d, final regulation %d\n", Adapter->registrypriv.RegPwrTblSel, regulation );*/
+	/*RTW_INFO("pMgntInfo->RegPwrTblSel %d, final regulation %d\n", Adapter->registrypriv.RegPwrTblSel, regulation );*/
 
 
 	if (Band == BAND_ON_2_4G)
@@ -3204,12 +3204,12 @@ PHY_GetTxPowerLimitOriginal(
 		break;
 
 	default:
-		DBG_871X("Wrong rate 0x%x\n", DataRate);
+		RTW_INFO("Wrong rate 0x%x\n", DataRate);
 		break;
 	}
 
 	if (Band == BAND_ON_5G  && rateSection == 0)
-		DBG_871X("Wrong rate 0x%x: No CCK in 5G Band\n", DataRate);
+		RTW_INFO("Wrong rate 0x%x: No CCK in 5G Band\n", DataRate);
 
 	/*workaround for wrong index combination to obtain tx power limit,*/
 	/*OFDM only exists in BW 20M*/
@@ -3235,7 +3235,7 @@ PHY_GetTxPowerLimitOriginal(
 
 		if (band == -1 || regulation == -1 || bandwidth == -1 ||
 		    rateSection == -1 || channel == -1) {
-			/*DBG_871X("Wrong index value to access power limit table [band %d][regulation %d][bandwidth %d][rf_path %d][rate_section %d][chnlGroup %d]\n",*/
+			/*RTW_INFO("Wrong index value to access power limit table [band %d][regulation %d][bandwidth %d][rf_path %d][rate_section %d][chnlGroup %d]\n",*/
 			/*	  band, regulation, bandwidth, RfPath, rateSection, channelGroup );*/
 
 			return MAX_POWER_INDEX;
@@ -3264,7 +3264,7 @@ PHY_GetTxPowerLimitOriginal(
 		powerLimit = (regulation == TXPWR_LMT_WW) ? phy_GetWorldWideLimit(limits) :
 			pHalData->TxPwrLimit_5G_Original[regulation][bandwidth][rateSection][channel][RfPath];
 	} else
-		DBG_871X("No power limit table of the specified band\n");
+		RTW_INFO("No power limit table of the specified band\n");
 
 	/*combine 5G VHT & HT rate*/
 	/*5G 20M and 40M HT and VHT can cross reference*/
@@ -3286,7 +3286,7 @@ PHY_GetTxPowerLimitOriginal(
 		}
 	}
 	*/
-	/*DBG_871X("TxPwrLmt[Regulation %d][Band %d][BW %d][RFPath %d][Rate 0x%x][Chnl %d] = %d\n",*/
+	/*RTW_INFO("TxPwrLmt[Regulation %d][Band %d][BW %d][RFPath %d][Rate 0x%x][Chnl %d] = %d\n",*/
 	/*		regulation, pHalData->current_band_type, Bandwidth, RfPath, DataRate, Channel, powerLimit);*/
 	return powerLimit;
 }

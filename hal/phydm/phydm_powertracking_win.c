@@ -754,13 +754,13 @@ odm_txpowertracking_check_ce(
 
 	if (!p_rf_calibrate_info->tm_trigger) {
 		odm_set_rf_reg(p_dm_odm, ODM_RF_PATH_A, RF_T_METER, RFREGOFFSETMASK, 0x60);
-		/*DBG_8192C("Trigger 92C Thermal Meter!!\n");*/
+		/*RTW_INFO("Trigger 92C Thermal Meter!!\n");*/
 
 		p_rf_calibrate_info->tm_trigger = 1;
 		return;
 
 	} else {
-		/*DBG_8192C("Schedule TxPowerTracking direct call!!\n");*/
+		/*RTW_INFO("Schedule TxPowerTracking direct call!!\n");*/
 		odm_txpowertracking_callback_thermal_meter_8188e(adapter);
 		p_rf_calibrate_info->tm_trigger = 0;
 	}

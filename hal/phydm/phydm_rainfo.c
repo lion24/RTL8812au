@@ -3205,7 +3205,7 @@ find_minimum_rssi(
 	} else
 		p_hal_data->min_undecorated_pwdb_for_dm = p_hal_data->entry_min_undecorated_smoothed_pwdb;
 
-	/*DBG_8192C("%s=>min_undecorated_pwdb_for_dm(%d)\n",__FUNCTION__,pdmpriv->min_undecorated_pwdb_for_dm);*/
+	/*RTW_INFO("%s=>min_undecorated_pwdb_for_dm(%d)\n",__FUNCTION__,pdmpriv->min_undecorated_pwdb_for_dm);*/
 	/*ODM_RT_TRACE(p_dm_odm,COMP_DIG, DBG_LOUD, ("min_undecorated_pwdb_for_dm =%d\n",p_hal_data->min_undecorated_pwdb_for_dm));*/
 }
 
