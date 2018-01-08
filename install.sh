@@ -71,10 +71,10 @@ then
 	echo "##################################################"
 	exit 1
 else
-	sudo cp -R . /usr/src/rtl8812AU_linux-4.3.8
-	sudo dkms add -m rtl8812AU_linux -v 4.3.8
-	sudo dkms build -m rtl8812AU_linux -v 4.3.8
-	sudo dkms install -m rtl8812AU_linux -v 4.3.8
+	sudo cp -R . /usr/src/rtl8812AU_linux-5.2.9
+	sudo dkms add -m rtl8812AU_linux -v 5.2.9
+	sudo dkms build -m rtl8812AU_linux -v 5.2.9
+	sudo dkms install -m rtl8812AU_linux -v 5.2.9
 
 	echo "##################################################"
 	echo "The Setup Script is completed !"
