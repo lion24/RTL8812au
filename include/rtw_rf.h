@@ -181,8 +181,8 @@ extern const u8 _rf_type_to_rf_tx_cnt[];
 extern const u8 _rf_type_to_rf_rx_cnt[];
 #define rf_type_to_rf_rx_cnt(rf_type) (RF_TYPE_VALID(rf_type) ? _rf_type_to_rf_rx_cnt[rf_type] : 0)
 
-int rtw_ch2freq(int chan);
-int rtw_freq2ch(int freq);
+u32 rtw_ch2freq(u32 chan);
+u32 rtw_freq2ch(u32 freq);
 bool rtw_chbw_to_freq_range(u8 ch, u8 bw, u8 offset, u32 *hi, u32 *lo);
 
 #define RTW_MODULE_RTL8821AE_HMC_M2		BIT0 /* RTL8821AE(HMC + M.2) */
