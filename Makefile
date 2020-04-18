@@ -1,4 +1,6 @@
 EXTRA_CFLAGS += -Wno-error=date-time
+EXTRA_CFLAGS += -Wno-error=date-time
+EXTRA_CFLAGS += -Wno-error=date-time
 EXTRA_CFLAGS += $(USER_EXTRA_CFLAGS)
 EXTRA_CFLAGS += -O1
 #EXTRA_CFLAGS += -O3
@@ -69,7 +71,8 @@ CONFIG_AP_WOWLAN = n
 ######### Notify SDIO Host Keep Power During Syspend ##########
 CONFIG_RTW_SDIO_PM_KEEP_POWER = y
 ###################### Platform Related #######################
-CONFIG_PLATFORM_I386_PC = y
+CONFIG_PLATFORM_ARM_JET_NANO = y
+CONFIG_PLATFORM_I386_PC = n
 CONFIG_PLATFORM_ANDROID_X86 = n
 CONFIG_PLATFORM_JB_X86 = n
 CONFIG_PLATFORM_ARM_S3C2K4 = n
@@ -802,6 +805,18 @@ ifeq ($(CONFIG_ANTENNA_DIVERSITY), y)
 EXTRA_CFLAGS += -DCONFIG_ANTENNA_DIVERSITY
 endif
 
+# NVidia Jetson Nano
+ifeq ($(CONFIG_PLATFORM_ARM_JET_NANO), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+EXTRA_CFLAGS += -Wno-error=date-time
+ARCH := arm64
+KVER ?= $(shell uname -r)
+#KSRC := /usr/src/linux-headers-$(KVER)-ubuntu18.04_aarch64/kernel-4.9
+KSRC := /usr/src/linux-headers-$(KVER)-tegra-ubuntu18.04_aarch64/kernel-4.9
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/realtek/rtl8812au/
+endif
 
 ifeq ($(CONFIG_PLATFORM_I386_PC), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
