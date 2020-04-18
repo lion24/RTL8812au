@@ -805,7 +805,7 @@ ifeq ($(CONFIG_ANTENNA_DIVERSITY), y)
 EXTRA_CFLAGS += -DCONFIG_ANTENNA_DIVERSITY
 endif
 
-# NVidia Jetson Nano
+# nvidia Jetson Nano
 ifeq ($(CONFIG_PLATFORM_ARM_JET_NANO), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
 EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
@@ -813,7 +813,6 @@ EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
 EXTRA_CFLAGS += -Wno-error=date-time
 ARCH := arm64
 KVER ?= $(shell uname -r)
-#KSRC := /usr/src/linux-headers-$(KVER)-ubuntu18.04_aarch64/kernel-4.9
 KSRC := /usr/src/linux-headers-$(KVER)-tegra-ubuntu18.04_aarch64/kernel-4.9
 MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/realtek/rtl8812au/
 endif
