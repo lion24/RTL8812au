@@ -1,4 +1,5 @@
 # AWUS036AC-linux
+# Provides support for Jetson Nano
 
 AWUS036AC Ubuntu linux driver.
 
@@ -21,3 +22,22 @@ For more informations you can go on : http://feiraspromove.com.br/posts/2015-12-
 To install the driver: 
 
 `sudo ./install.sh`
+
+## To compile on Jetson-Nano
+
+```
+CONFIG_PLATFORM_ARM_JET_NANO = y
+CONFIG_PLATFORM_I386_PC = n
+```
+
+To test 
+```
+sudo insmod 8812au.ko
+```
+
+
+
+
+
+
+
